@@ -18,7 +18,6 @@ public class HomeActivity extends AppCompatActivity {
 
     TabLayout mTabLayout;
     ViewPager mPager;
-    PagerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +38,23 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupViewPager() {
+
+        //Set Up View pager
         TabsAdapter adapter = new TabsAdapter(getSupportFragmentManager());
         adapter.addFragment(new ServiceListFragment(), "Services");
-        adapter.addFragment(new ServiceListFragment(), "Packages");
-        adapter.addFragment(new ServiceListFragment(), "Tests");
+
+        ListFragment packagesFragment = new ListFragment();
+        Bundle packagesBundle = new Bundle();
+        packagesBundle.putString("type", "packages");
+        packagesFragment.setArguments(packagesBundle);
+        adapter.addFragment(packagesFragment, "Packages");
+
+        ListFragment testsFragment = new ListFragment();
+        Bundle testsBundle = new Bundle();
+        testsBundle.putString("type","tests");
+        testsFragment.setArguments(testsBundle);
+        adapter.addFragment(testsFragment, "Tests");
+
         mPager.setAdapter(adapter);
     }
 
