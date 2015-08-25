@@ -1,9 +1,11 @@
 package in.kvsc.kalpavrikshpro;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -33,5 +35,14 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onLoginClicked(View view){
+
+        //TODO Login
+
+        Intent loginIntent = new Intent();
+        loginIntent.setClass(this,HomeActivity.class);
+        startActivity(loginIntent);
     }
 }
