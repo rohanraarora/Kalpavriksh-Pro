@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Adapter;
 
+import utilities.Constant;
 import utilities.TabsAdapter;
 
 public class HomeActivity extends AppCompatActivity {
@@ -45,15 +46,15 @@ public class HomeActivity extends AppCompatActivity {
 
         ListFragment packagesFragment = new ListFragment();
         Bundle packagesBundle = new Bundle();
-        packagesBundle.putString("type", "packages");
+        packagesBundle.putString("type", Constant.PACKAGES);
         packagesFragment.setArguments(packagesBundle);
-        adapter.addFragment(packagesFragment, "Packages");
+        adapter.addFragment(packagesFragment, getString(R.string.packages));
 
         ListFragment testsFragment = new ListFragment();
         Bundle testsBundle = new Bundle();
-        testsBundle.putString("type","tests");
+        testsBundle.putString("type", Constant.SUPERTESTS);
         testsFragment.setArguments(testsBundle);
-        adapter.addFragment(testsFragment, "Tests");
+        adapter.addFragment(testsFragment, getString(R.string.tests));
 
         mPager.setAdapter(adapter);
     }

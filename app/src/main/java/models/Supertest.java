@@ -9,17 +9,18 @@ public class Supertest {
     private String name;
     private int id;
     private double price;
-    private ArrayList<Supertest> tests;
+    private ArrayList<Test> tests;
 
-    public Supertest(int id,String name){
+
+    public Supertest(int id,String name,double price){
         this.id = id;
         this.name = name;
-        this.price = -1;
+        this.price = price;
         this.tests = null;
     }
 
 
-    public Supertest(int id,String name,double price,ArrayList<Supertest> tests){
+    public Supertest(int id,String name,double price,ArrayList<Test> tests){
         this.id = id;
         this.name = name;
         this.price = price;
@@ -32,5 +33,5 @@ public class Supertest {
 
     public double getPrice(){return price;}
 
-    public ArrayList<Supertest> getTests(){return tests;}
+    public ArrayList<Test> getTests(){return tests;}
 }
