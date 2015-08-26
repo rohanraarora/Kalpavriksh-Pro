@@ -1,12 +1,15 @@
 package utilities;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import in.kvsc.kalpavrikshpro.R;
 import models.*;
 import models.Package;
 
@@ -57,12 +60,32 @@ public class PackageListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        return null;
+        View output = convertView;
+        if(convertView == null){
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            output = inflater.inflate(R.layout.row_layout,null);
+        }
+        TextView nameTextView = (TextView)output.findViewById(R.id.row_textView_name);
+        TextView priceTextView = (TextView)output.findViewById(R.id.row_textView_price);
+        Package packageObject = getGroup(groupPosition);
+        nameTextView.setText(packageObject.getName());
+        priceTextView.setText(packageObject.getPrice() + "");
+
+        return output;
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        return null;
+        View output = convertView;
+        if(convertView == null){
+            LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            output = inflater.inflate(R.layout.expandedrow_layout,null);
+        }
+        TextView nameTextView = (TextView)output.findViewById(R.id.expandedrow_textView_name);
+        Supertest supertest = getChild(groupPosition,childPosition);
+        nameTextView.setText(supertest.getName());
+
+        return output;
     }
 
     @Override
