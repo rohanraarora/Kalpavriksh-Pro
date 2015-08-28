@@ -6,13 +6,20 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 
 public class LoginActivity extends AppCompatActivity {
+
+    EditText mEmailEditText;
+    EditText mPassEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        mEmailEditText = (EditText)this.findViewById(R.id.editText_username);
+        mPassEditText = (EditText)this.findViewById(R.id.editText_password);
     }
 
     @Override
@@ -40,6 +47,9 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginClicked(View view){
 
         //TODO Login
+
+        String emailString = mEmailEditText.getText().toString();
+        String passString = mPassEditText.getText().toString();
 
         Intent loginIntent = new Intent();
         loginIntent.setClass(this,HomeActivity.class);
