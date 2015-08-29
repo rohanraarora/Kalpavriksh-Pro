@@ -15,6 +15,7 @@ import models.Package;
 
 /**
  * Created by Rohan on 8/26/2015.
+ *
  */
 public class PackageListAdapter extends BaseExpandableListAdapter {
     Context mContext;
@@ -84,7 +85,6 @@ public class PackageListAdapter extends BaseExpandableListAdapter {
         TextView nameTextView = (TextView)output.findViewById(R.id.expandedrow_textView_name);
         Supertest supertest = getChild(groupPosition,childPosition);
         nameTextView.setText(supertest.getName());
-
         return output;
     }
 

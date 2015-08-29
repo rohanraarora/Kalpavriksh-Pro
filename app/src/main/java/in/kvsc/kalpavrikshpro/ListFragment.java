@@ -26,7 +26,6 @@ import utilities.SupertestListAdapter;
  */
 public class ListFragment extends android.support.v4.app.Fragment {
 
-    private String mType;
     private ArrayList<Package> mPackages;
     private ArrayList<Supertest> mSupertests;
 
@@ -37,7 +36,7 @@ public class ListFragment extends android.support.v4.app.Fragment {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_package_list, container, false);
         Bundle bundle = getArguments();
-        mType = bundle.getString("type");
+        String mType = bundle.getString("type");
 
         ExpandableListView listView = (ExpandableListView)fragmentView.findViewById(R.id.expandableListView);
 
@@ -45,15 +44,17 @@ public class ListFragment extends android.support.v4.app.Fragment {
         mPackages = new ArrayList<>();
         mSupertests = new ArrayList<>();
 
-        if(mType.equals(Constant.PACKAGES)){
-            getPackages();
-            PackageListAdapter adapter = new PackageListAdapter(getActivity(),mPackages);
-            listView.setAdapter(adapter);
-        }
-        else if (mType.equals(Constant.SUPERTESTS)){
-            getSupertests();
-            SupertestListAdapter adapter = new SupertestListAdapter(getActivity(),mSupertests);
-            listView.setAdapter(adapter);
+        if (mType != null) {
+            if(mType.equals(Constant.PACKAGES)){
+                getPackages();
+                PackageListAdapter adapter = new PackageListAdapter(getActivity(),mPackages);
+                listView.setAdapter(adapter);
+            }
+            else if (mType.equals(Constant.SUPERTESTS)){
+                getSupertests();
+                SupertestListAdapter adapter = new SupertestListAdapter(getActivity(),mSupertests);
+                listView.setAdapter(adapter);
+            }
         }
 
 
@@ -80,9 +81,11 @@ public class ListFragment extends android.support.v4.app.Fragment {
                 Test test = new Test(tid,test_name);
                 tests.add(test);
             }
+            innerCursor.close();
             Supertest supertest = new Supertest(id,name,Double.parseDouble(priceString),tests);
             supertestArrayList.add(supertest);
         }
+        cursor.close();
         mSupertests = supertestArrayList;
     }
 
@@ -107,9 +110,11 @@ public class ListFragment extends android.support.v4.app.Fragment {
                 Supertest supertest = new Supertest(tid,test_name,Double.parseDouble(testPriceString));
                 tests.add(supertest);
             }
+            innerCursor.close();
             Package packageObject = new Package(id,name,Double.parseDouble(priceString),tests);
             packages.add(packageObject);
         }
+        cursor.close();
         mPackages = packages;
     }
 
