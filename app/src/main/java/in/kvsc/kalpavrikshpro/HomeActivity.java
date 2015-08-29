@@ -1,16 +1,12 @@
 package in.kvsc.kalpavrikshpro;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Adapter;
-
 import utilities.Constant;
 import utilities.TabsAdapter;
 
@@ -74,7 +70,12 @@ public class HomeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_logout) {
+            GlobalState globalState = GlobalState.getInstance();
+            globalState.logout();
+            Intent loginIntent = new Intent(this,LoginActivity.class);
+            startActivity(loginIntent);
+            this.finish();
             return true;
         }
 

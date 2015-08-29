@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * Created by Rohan on 8/25/2015.
+ *
  */
 public class TabsAdapter extends FragmentPagerAdapter{
 

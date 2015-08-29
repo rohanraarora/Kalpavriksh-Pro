@@ -1,9 +1,7 @@
 package utilities;
-
-import android.provider.BaseColumns;
-
 /**
  * Created by Rohan on 8/26/2015.
+ *
  */
 public class Contract {
     
