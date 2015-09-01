@@ -20,6 +20,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -115,20 +116,20 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class UpdateDatabseAsyncTask extends AsyncTask<String, Void, JSONObject> {
+    public class UpdateDatabseAsyncTask extends AsyncTask<String, Void, JSONArray> {
         ProgressDialog mProgressDialog;
         String token;
         @Override
-        protected JSONObject doInBackground(String... params) {
+        protected JSONArray doInBackground(String... params) {
 
             SharedPreferences user_pref = getSharedPreferences(Constant.USER_SHARED_PREFS,MODE_PRIVATE);
             token = user_pref.getString(Constant.USER_TOKEN,"");
             String superTestResponse;
-            JSONObject superTestResponseJsonObject = new JSONObject();
+            JSONArray superTestResponseJsonObject = new JSONArray();
             try {
                 superTestResponse = post(Constant.SUPERTEST_URL);
                 Log.i("string", superTestResponse);
-                superTestResponseJsonObject = new JSONObject(superTestResponse);
+                superTestResponseJsonObject = new JSONArray(superTestResponse);
                 Log.i("Object" , superTestResponseJsonObject.toString());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -142,8 +143,8 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            super.onPostExecute(jsonObject);
+        protected void onPostExecute(JSONArray jsonArray) {
+            super.onPostExecute(jsonArray);
             mProgressDialog.dismiss();
         }
         String post(String url) throws IOException {
