@@ -14,14 +14,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -63,7 +60,7 @@ public class HomeActivity extends AppCompatActivity {
 
         //Set Up View pager
         TabsAdapter adapter = new TabsAdapter(getSupportFragmentManager());
-        adapter.addFragment(new ServiceListFragment(), "Services");
+        adapter.addFragment(new AppointmentListFragment(), "Services");
 
         ListFragment packagesFragment = new ListFragment();
         Bundle packagesBundle = new Bundle();

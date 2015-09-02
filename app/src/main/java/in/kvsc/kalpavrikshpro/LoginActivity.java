@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +23,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
+
+import models.LabAppointment;
+import models.Patient;
 import utilities.Constant;
+import utilities.OpenHelper;
 import utilities.Utilities;
 
 public class LoginActivity extends AppCompatActivity {
@@ -78,26 +83,57 @@ public class LoginActivity extends AppCompatActivity {
             Snackbar.make(parentView, "Please connect to Internet", Snackbar.LENGTH_LONG).show();
         }
     }
-    private class LogInAsyncTask extends AsyncTask<String, Void, JSONObject> {
+    private class LogInAsyncTask extends AsyncTask<String, Void, String> {
+        private static final String SUCCESS = "success";
         ProgressDialog mProgressDialog;
+
+        private void getAppointments(Context context){
+            OkHttpClient client = new OkHttpClient();//creating client
+
+            Request request = new Request.Builder()//building request
+                    .url(Constant.APPOINTMENT_URL)
+                    .header("Authorization", GlobalState.getInstance().getToken())
+                    .build();
+            try {
+                Response response = client.newCall(request).execute();
+                String responseString = response.body().string();
+                response.body().close();
+                JSONArray appointments = new JSONArray(responseString);
+                Log.i("appointments",appointments.toString());
+                OpenHelper openHelper = OpenHelper.getInstance(context);
+                SQLiteDatabase db = openHelper.getWritableDatabase();
+                for(int i = 0;i<appointments.length();i++){
+                    JSONObject appointment = appointments.getJSONObject(i);
+                    int patient_id = appointment.getInt("patient_id");
+                    int appointment_id = appointment.getInt("lab_appointment_id");
+                    String name = appointment.getString("patient_name");
+                    String address = appointment.getString("address");
+                    String age = appointment.getString("age");
+                    String gender = appointment.getString("gender");
+                    String phone = appointment.getString("phone");
+                    Patient patient = new Patient(patient_id,name,address,phone,age,gender);
+                    String date = appointment.getString("date");
+                    String time = appointment.getString("collection_time");
+                    String tests = appointment.getString("test_list");
+                    LabAppointment labAppointment = new LabAppointment(appointment_id,patient,date,time,tests,false);
+                    openHelper.addLabAppointment(db,labAppointment);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         @Override
-        protected JSONObject doInBackground(String... strings) {
+        protected String doInBackground(String... strings) {
             String response;
-            JSONObject resposneJsonObject = new JSONObject();
+            JSONObject jsonObject = new JSONObject();
             try {
                 response = post(Constant.LOGIN_URL);
-                resposneJsonObject = new JSONObject(response);
+                jsonObject = new JSONObject(response);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return resposneJsonObject;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            mProgressDialog.dismiss();
             if (jsonObject!= null) {
-                Log.i("json", jsonObject.toString());
                 if(jsonObject.has("id")){
                     try {
                         long id = jsonObject.getLong("id");
@@ -113,17 +149,16 @@ public class LoginActivity extends AppCompatActivity {
                         if(isSampleCollector){
                             SharedPreferences user_pref = getSharedPreferences(Constant.USER_SHARED_PREFS,MODE_PRIVATE);
                             SharedPreferences.Editor editor = user_pref.edit();
-                            editor.putLong(Constant.USER_ID,id);
+                            editor.putLong(Constant.USER_ID, id);
                             editor.putString(Constant.USER_TOKEN, token);
                             editor.putInt(Constant.USER_GROUP_ID, Constant.SAMPLE_COLLECTOR_ID);
                             editor.apply();
-                            Intent loginIntent = new Intent();
-                            loginIntent.setClass(LoginActivity.this, HomeActivity.class);
-                            startActivity(loginIntent);
-                            thisActivity.finish();
+                            GlobalState.getInstance().login(token);
+                            getAppointments(thisActivity);
+                            return SUCCESS;
                         }
                         else{
-                            Snackbar.make(parentView,"Access Denied. Please login from a different account",Snackbar.LENGTH_SHORT).show();
+                            return "Access Denied. Please login from a different account";
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -131,14 +166,29 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 else if(jsonObject.has("error")){
                     try {
-                        Snackbar.make(parentView,jsonObject.getString("error"),Snackbar.LENGTH_INDEFINITE).show();
+                        return jsonObject.getString("error");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
             }
             else{
-                Snackbar.make(parentView,"Cannot login now. Please try after some time",Snackbar.LENGTH_SHORT).show();
+                return "Cannot login now. Please try after some time";
+            }
+            return "Unexpected Error";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            mProgressDialog.dismiss();
+            if(result.equals(SUCCESS)) {
+                Intent loginIntent = new Intent();
+                loginIntent.setClass(LoginActivity.this, HomeActivity.class);
+                startActivity(loginIntent);
+                thisActivity.finish();
+            }
+            else{
+                Snackbar.make(parentView,result,Snackbar.LENGTH_LONG).show();
             }
         }
 
@@ -147,7 +197,7 @@ public class LoginActivity extends AppCompatActivity {
             mProgressDialog = ProgressDialog.show(LoginActivity.this, null, "Loading...");
         }
 
-        String post(String url) throws IOException {
+        private String post(String url) throws IOException {
             //Using OkHttp lib
             OkHttpClient client = new OkHttpClient();//creating client
             RequestBody requestBody = new MultipartBuilder()//building body part using form-data method
@@ -172,4 +222,5 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
+
 }

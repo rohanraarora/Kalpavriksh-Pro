@@ -17,7 +17,6 @@ import models.Package;
 public class OpenHelper extends SQLiteOpenHelper{
     private static final int VERSION = 1;
     private static final String DB_NAME = "kalpavriksh_pro_db";
-
     Context mContext;
     private static OpenHelper mOpenHelper;
 
@@ -58,6 +57,23 @@ public class OpenHelper extends SQLiteOpenHelper{
         db.execSQL("CREATE TABLE " + Contract.TEST_TABLE + " ("
                 + Contract.TEST_ID_COLUMN + " INTEGER PRIMARY KEY, "
                 + Contract.Test_Name_COLUMN + " TEXT)");
+
+        db.execSQL("CREATE TABLE " + Contract.PATIENT_TABLE + " ("
+                + Contract.PATIENT_ID_COL + " INTEGERT PRIMARY KEY, "
+                + Contract.PATIENT_NAME_COL + " TEXT, "
+                + Contract.PATIENT_ADDRESS_COL + " TEXT, "
+                + Contract.PATIENT_PHONE_COL + " TEXT, "
+                + Contract.PATIENT_AGE_COL + " TEXT, "
+                + Contract.PATIENT_GENDER_COL + " TEXT)");
+
+        db.execSQL("CREATE TABLE " + Contract.LAB_APPOINTMENT_TABLE + " ("
+                + Contract.LAB_APPOINTMENT_ID_COLUMN + " INTEGER PRIMARY KEY, "
+                + Contract.LAB_APPOINTMENT_PATIENT_ID_COL + " INTEGER, "
+                + Contract.LAB_APPOINTMENT_DATE_COLUMN + " TEXT, "
+                + Contract.LAB_APPOINTMENT_TIME_COLUMN + " TEXT, "
+                + Contract.LAB_APPOINTMENT_EPOCH_COL + " TEXT, "
+                + Contract.LAB_APPOINTMENT_TESTS_COLUMN + " TEXT, "
+                + Contract.LAB_APPOINTMENT_ISDONE_COLUMN + " INTEGER)");
 
         addDummyData(db);
 
@@ -121,6 +137,10 @@ public class OpenHelper extends SQLiteOpenHelper{
         addPackage(db,package1);
         addPackage(db,package2);
         addPackage(db,package3);
+
+        Patient patient = new Patient(1,"Sahib","Hostel","9909090900","21","M");
+        LabAppointment appointment = new LabAppointment(1,patient,"Sep-6","4:00","TEST 1",false);
+        addLabAppointment(db,appointment);
     }
 
     public long addTest(SQLiteDatabase db,Test test){
@@ -161,6 +181,30 @@ public class OpenHelper extends SQLiteOpenHelper{
 
         return db.insert(Contract.PACKAGE_TABLE,null,contentValues);
     }
+
+    public void addLabAppointment(SQLiteDatabase db,LabAppointment labAppointment){
+        ContentValues patientValues = new ContentValues();
+        ContentValues appointmentValues = new ContentValues();
+
+        Patient patient = labAppointment.getPatient();
+        patientValues.put(Contract.PATIENT_ID_COL,patient.getId());
+        patientValues.put(Contract.PATIENT_ADDRESS_COL,patient.getAddress());
+        patientValues.put(Contract.PATIENT_AGE_COL,patient.getAge());
+        patientValues.put(Contract.PATIENT_GENDER_COL,patient.getGender());
+        patientValues.put(Contract.PATIENT_NAME_COL,patient.getName());
+        patientValues.put(Contract.PATIENT_PHONE_COL,patient.getPhone());
+        db.insert(Contract.PATIENT_TABLE, null, patientValues);
+
+        appointmentValues.put(Contract.LAB_APPOINTMENT_DATE_COLUMN, labAppointment.getDate());
+        appointmentValues.put(Contract.LAB_APPOINTMENT_EPOCH_COL,labAppointment.getTimeInEpoch());
+        appointmentValues.put(Contract.LAB_APPOINTMENT_ID_COLUMN,labAppointment.getId());
+        appointmentValues.put(Contract.LAB_APPOINTMENT_ISDONE_COLUMN,0);//TODO
+        appointmentValues.put(Contract.LAB_APPOINTMENT_PATIENT_ID_COL,patient.getId());
+        appointmentValues.put(Contract.LAB_APPOINTMENT_TIME_COLUMN,labAppointment.getCollection_time());
+        appointmentValues.put(Contract.LAB_APPOINTMENT_TESTS_COLUMN,labAppointment.getTests());
+        db.insert(Contract.LAB_APPOINTMENT_TABLE,null,appointmentValues);
+    }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
