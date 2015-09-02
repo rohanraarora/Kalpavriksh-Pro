@@ -4,4 +4,7 @@
     tools:context="in.kvsc.kalpavrikshpro.HomeActivity">
     <item android:id="@+id/action_logout" android:title="Log Out"
         android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_update_database" android:title="Sync Data"
+        android:orderInCategory="99" app:showAsAction="never" />
+
 </menu>

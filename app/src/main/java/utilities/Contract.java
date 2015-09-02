@@ -28,4 +28,22 @@ public class Contract {
     public static final String TEST_TABLE = "tests";
     public static final String TEST_ID_COLUMN = "test_id";
     public static final String Test_Name_COLUMN = "test_name";
+
+    public static final String PATIENT_TABLE = "patients";
+    public static final String PATIENT_ID_COL = "patient_id";
+    public static final String PATIENT_NAME_COL = "patient_name";
+    public static final String PATIENT_ADDRESS_COL = "address";
+    public static final String PATIENT_PHONE_COL = "phone";
+    public static final String PATIENT_AGE_COL = "age";
+    public static final String PATIENT_GENDER_COL = "gender";
+
+    public static final String LAB_APPOINTMENT_TABLE = "lab_appointments";
+    public static final String LAB_APPOINTMENT_ID_COLUMN = "lab_appointment_id";
+    public static final String LAB_APPOINTMENT_PATIENT_ID_COL = "appintment_patient_id";
+    public static final String LAB_APPOINTMENT_EPOCH_COL = "appointment_epoch";
+    public static final String LAB_APPOINTMENT_DATE_COLUMN = "lab_appointment_date";
+    public static final String LAB_APPOINTMENT_TIME_COLUMN = "lab_appointment_time";
+    public static final String LAB_APPOINTMENT_ISDONE_COLUMN = "is_done";
+    public static final String LAB_APPOINTMENT_TESTS_COLUMN = "appintment_tests";
+
 }
