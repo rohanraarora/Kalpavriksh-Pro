@@ -1,11 +1,13 @@
 package in.kvsc.kalpavrikshpro;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import models.LabAppointment;
 import models.Patient;
 import utilities.AppointmentListAdapter;
+import utilities.Constant;
 import utilities.Contract;
 import utilities.OpenHelper;
 
@@ -31,10 +34,18 @@ public class AppointmentListFragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_service_list, container, false);
-        ListView listView = (ListView)view.findViewById(R.id.appointmentListView);
+        final ListView listView = (ListView)view.findViewById(R.id.appointmentListView);
         getAppointments();
         AppointmentListAdapter adapter = new AppointmentListAdapter(getActivity(),mList);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent detail = new Intent(getActivity(),DetailAppointmentActivity.class);
+                detail.putExtra(Constant.APPOINTMENT_ID_INTENT_KEY,id);
+                startActivity(detail);
+            }
+        });
         return view;
     }
 

@@ -13,10 +13,10 @@ public class Supertest {
     private ArrayList<Test> tests;
 
 
-    public Supertest(int id,String name,double price){
+    public Supertest(int id,String name){
         this.id = id;
         this.name = name;
-        this.price = price;
+        this.price = 0;
         this.tests = null;
     }
 
