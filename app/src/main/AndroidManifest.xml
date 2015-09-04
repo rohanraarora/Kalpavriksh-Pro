@@ -25,6 +25,14 @@
             android:name=".HomeActivity"
             android:label="@string/title_activity_home" >
         </activity>
+        <activity
+            android:name=".DetailAppointmentActivity"
+            android:label="@string/title_activity_detail_appointment"
+            android:parentActivityName=".HomeActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="in.kvsc.kalpavrikshpro.HomeActivity" />
+        </activity>
     </application>
 
 </manifest>

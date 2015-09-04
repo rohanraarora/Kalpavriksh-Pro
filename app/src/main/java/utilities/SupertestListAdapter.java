@@ -85,7 +85,7 @@ public class SupertestListAdapter extends BaseExpandableListAdapter {
         }
         TextView nameTextView = (TextView)output.findViewById(R.id.expandedrow_textView_name);
         Test test = getChild(groupPosition,childPosition);
-        nameTextView.setText(test.getName());
+        nameTextView.setText((childPosition+1) + ".) " + test.getName());
 
         return output;
     }

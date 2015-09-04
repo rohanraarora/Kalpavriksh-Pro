@@ -106,8 +106,7 @@ public class ListFragment extends android.support.v4.app.Fragment {
             while (innerCursor.moveToNext()){
                 int tid = innerCursor.getInt(innerCursor.getColumnIndex(Contract.SUPERTEST_ID_COLUMN));
                 String test_name = innerCursor.getString(innerCursor.getColumnIndex(Contract.SUPERTEST_NAME_COLUMN));
-                String testPriceString = innerCursor.getString(innerCursor.getColumnIndex(Contract.SUPERTEST_PRICE_COLUMN));
-                Supertest supertest = new Supertest(tid,test_name,Double.parseDouble(testPriceString));
+                Supertest supertest = new Supertest(tid,test_name);
                 tests.add(supertest);
             }
             innerCursor.close();

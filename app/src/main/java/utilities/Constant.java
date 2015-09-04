@@ -16,4 +16,6 @@ public class Constant {
     public static final String USER_ID = "id";
     public static final String USER_GROUP_ID = "group_id";
     public static final String USER_TOKEN = "token";
+    public static final String APPOINTMENT_ID_INTENT_KEY = "appintment_id";
+    public static final String PACKAGE_URL = "http://52.10.206.27:8080/get_supertest_package_list/?all=true";
 }

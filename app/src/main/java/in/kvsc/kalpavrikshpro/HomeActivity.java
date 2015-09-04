@@ -1,8 +1,10 @@
 package in.kvsc.kalpavrikshpro;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -19,16 +21,23 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
+import models.*;
+import models.Package;
 import utilities.Constant;
+import utilities.Contract;
+import utilities.OpenHelper;
 import utilities.TabsAdapter;
+import utilities.UpdateDatabaseTask;
 import utilities.Utilities;
 
 public class HomeActivity extends AppCompatActivity {
 
-
+    Context mContext;
     TabLayout mTabLayout;
     ViewPager mPager;
     View parentView;
@@ -38,7 +47,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         parentView = this.findViewById(R.id.home_screen);
-
+        mContext = this;
         //View Pager
         mPager = (ViewPager) this.findViewById(R.id.viewpager);
         if(mPager!=null) {
@@ -102,7 +111,8 @@ public class HomeActivity extends AppCompatActivity {
         }
         else if(id == R.id.action_update_database){
             if(Utilities.isConnectionAvailable(this)){
-                new UpdateDatabseAsyncTask().execute();
+                UpdateDatabaseTask updateDatabaseTask = new UpdateDatabaseTask(mContext);
+                updateDatabaseTask.execute();
             }
             else{
                 Snackbar.make(parentView, "Please connect to Internet", Snackbar.LENGTH_LONG).show();
@@ -113,56 +123,4 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class UpdateDatabseAsyncTask extends AsyncTask<String, Void, JSONArray> {
-        ProgressDialog mProgressDialog;
-        String token;
-        @Override
-        protected JSONArray doInBackground(String... params) {
-
-            SharedPreferences user_pref = getSharedPreferences(Constant.USER_SHARED_PREFS,MODE_PRIVATE);
-            token = user_pref.getString(Constant.USER_TOKEN,"");
-            String superTestResponse;
-            JSONArray superTestResponseJsonObject = new JSONArray();
-            try {
-                superTestResponse = post(Constant.SUPERTEST_URL);
-                Log.i("string", superTestResponse);
-                superTestResponseJsonObject = new JSONArray(superTestResponse);
-                Log.i("Object" , superTestResponseJsonObject.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return superTestResponseJsonObject;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mProgressDialog = ProgressDialog.show(HomeActivity.this, null, "Loading...");
-        }
-
-        @Override
-        protected void onPostExecute(JSONArray jsonArray) {
-            super.onPostExecute(jsonArray);
-            mProgressDialog.dismiss();
-        }
-        String post(String url) throws IOException {
-            //Using OkHttp lib
-            OkHttpClient client = new OkHttpClient();//creating client
-
-            Request request = new Request.Builder()//building request
-                    .url(url)
-                    .header("Authorization",token)
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                String responseString = response.body().string();
-                response.body().close();
-                return responseString;
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                Snackbar.make(parentView,"Cannot connect to server. Please try again later",Snackbar.LENGTH_SHORT).show();
-                return null;
-            }
-        }
-    }
 }
