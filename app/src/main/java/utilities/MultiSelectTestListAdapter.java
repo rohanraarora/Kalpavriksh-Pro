@@ -76,4 +76,7 @@ public class MultiSelectTestListAdapter extends BaseAdapter {
     }
 
 
+    public void clear() {
+        mSelectedPositions.clear();
+    }
 }
