@@ -10,4 +10,5 @@
     <string name="packages">Packages</string>
     <string name="tests">Tests</string>
     <string name="title_activity_detail_appointment">Appointment</string>
+    <string name="title_activity_multi_selector_list">Lists</string>
 </resources>

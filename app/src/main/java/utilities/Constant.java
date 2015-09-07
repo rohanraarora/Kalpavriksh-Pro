@@ -18,4 +18,8 @@ public class Constant {
     public static final String USER_TOKEN = "token";
     public static final String APPOINTMENT_ID_INTENT_KEY = "appintment_id";
     public static final String PACKAGE_URL = "http://52.10.206.27:8080/get_supertest_package_list/?all=true";
+    public static final int REQUEST_CODE_SUPERTESTS = 100;
+    public static final String SUPERTEST_ID_LIST_INTENT_KEY = "supertests_id";
+    public static final String SUPERTEST_POSITIONS_LIST_INTENT_KEY = "supertest_positions";
+    public static final int RESULT_CODE_SUCCESS = 1;
 }

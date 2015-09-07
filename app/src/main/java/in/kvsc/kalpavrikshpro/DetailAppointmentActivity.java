@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 import models.LabAppointment;
 import models.Patient;
 import utilities.Constant;
@@ -19,12 +21,16 @@ public class DetailAppointmentActivity extends AppCompatActivity {
 
     private LabAppointment mAppointment;
 
+    ArrayList<Integer> mSelectedSupertestIds;
+    ArrayList<Integer> mSelectedSsupertestPositions;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_appointment);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        mSelectedSupertestIds = new ArrayList<>();
+        mSelectedSsupertestPositions = new ArrayList<>();
         Intent intent = getIntent();
         long appointment_id = intent.getLongExtra(Constant.APPOINTMENT_ID_INTENT_KEY,0l);
         mAppointment = Utilities.getAppointment(this,appointment_id);
@@ -62,7 +68,9 @@ public class DetailAppointmentActivity extends AppCompatActivity {
     }
 
     public void onAddEditTestButtonClicked(View view){
-
+        Intent intent = new Intent(this,MultiSelectorListActivity.class);
+        intent.putIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY,mSelectedSsupertestPositions);
+        startActivityForResult(intent, Constant.REQUEST_CODE_SUPERTESTS);
     }
 
     @Override
@@ -88,5 +96,17 @@ public class DetailAppointmentActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case Constant.REQUEST_CODE_SUPERTESTS:
+                if(resultCode == Constant.RESULT_CODE_SUCCESS && data != null){
+                    mSelectedSsupertestPositions = data.getIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY);
+                    mSelectedSupertestIds = data.getIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY);
+                }
+        }
     }
 }
