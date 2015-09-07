@@ -33,6 +33,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="in.kvsc.kalpavrikshpro.HomeActivity" />
         </activity>
+        <activity
+            android:name=".MultiSelectorListActivity"
+            android:label="@string/title_activity_multi_selector_list" >
+        </activity>
     </application>
 
 </manifest>

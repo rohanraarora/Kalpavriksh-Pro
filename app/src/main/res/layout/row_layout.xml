@@ -5,6 +5,7 @@
     android:paddingTop="16dp"
     android:paddingBottom="16dp"
     android:paddingRight="16dp"
+    android:background="?android:attr/activatedBackgroundIndicator"
     android:paddingLeft="32dp">
 
     <TextView

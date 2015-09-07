@@ -1,6 +1,7 @@
 package in.kvsc.kalpavrikshpro;
 
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import utilities.Contract;
 import utilities.OpenHelper;
 import utilities.PackageListAdapter;
 import utilities.SupertestListAdapter;
+import utilities.Utilities;
 
 
 /**
@@ -46,12 +48,12 @@ public class ListFragment extends android.support.v4.app.Fragment {
 
         if (mType != null) {
             if(mType.equals(Constant.PACKAGES)){
-                getPackages();
+                mPackages = Utilities.getPackages(getActivity());
                 PackageListAdapter adapter = new PackageListAdapter(getActivity(),mPackages);
                 listView.setAdapter(adapter);
             }
             else if (mType.equals(Constant.SUPERTESTS)){
-                getSupertests();
+                mSupertests = Utilities.getSupertests(getActivity());
                 SupertestListAdapter adapter = new SupertestListAdapter(getActivity(),mSupertests);
                 listView.setAdapter(adapter);
             }
@@ -60,62 +62,4 @@ public class ListFragment extends android.support.v4.app.Fragment {
 
         return fragmentView;
     }
-
-    private void getSupertests() {
-        ArrayList<Supertest> supertestArrayList = new ArrayList<>();
-        OpenHelper openHelper = OpenHelper.getInstance(getActivity());
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-
-        Cursor cursor = db.query(Contract.SUPERTEST_TABLE,null,null,null,null,null,null);
-        while (cursor.moveToNext()){
-            int id = cursor.getInt(cursor.getColumnIndex(Contract.SUPERTEST_ID_COLUMN));
-            String name = cursor.getString(cursor.getColumnIndex(Contract.SUPERTEST_NAME_COLUMN));
-            String priceString = cursor.getString(cursor.getColumnIndex(Contract.SUPERTEST_PRICE_COLUMN));
-            ArrayList<Test> tests = new ArrayList<>();
-            Cursor innerCursor = db.rawQuery("SELECT * FROM " + Contract.TEST_TABLE + " WHERE " + Contract.TEST_ID_COLUMN
-                    + " IN ( SELECT " + Contract.SUPERTEST_TEST_TID_COLUMN + " FROM " + Contract.SUPERTEST_TEST_TABLE
-                    + " WHERE " + Contract.SUPERTEST_TEST_STID_COLUMN + "=? )",new String[]{id+""});
-            while (innerCursor.moveToNext()){
-                int tid = innerCursor.getInt(innerCursor.getColumnIndex(Contract.TEST_ID_COLUMN));
-                String test_name = innerCursor.getString(innerCursor.getColumnIndex(Contract.Test_Name_COLUMN));
-                Test test = new Test(tid,test_name);
-                tests.add(test);
-            }
-            innerCursor.close();
-            Supertest supertest = new Supertest(id,name,Double.parseDouble(priceString),tests);
-            supertestArrayList.add(supertest);
-        }
-        cursor.close();
-        mSupertests = supertestArrayList;
-    }
-
-    private void getPackages() {
-        ArrayList<Package> packages = new ArrayList<>();
-        OpenHelper openHelper = OpenHelper.getInstance(getActivity());
-        SQLiteDatabase db = openHelper.getReadableDatabase();
-
-        Cursor cursor = db.query(Contract.PACKAGE_TABLE,null,null,null,null,null,null);
-        while (cursor.moveToNext()){
-            int id = cursor.getInt(cursor.getColumnIndex(Contract.PACKAGE_ID_COLUMN));
-            String name = cursor.getString(cursor.getColumnIndex(Contract.PACKAGE_NAME_COLUMN));
-            String priceString = cursor.getString(cursor.getColumnIndex(Contract.PACKAGE_PRICE_COLUMN));
-            ArrayList<Supertest> tests = new ArrayList<>();
-            Cursor innerCursor = db.rawQuery("SELECT * FROM " + Contract.SUPERTEST_TABLE + " WHERE " + Contract.SUPERTEST_ID_COLUMN
-                    + " IN ( SELECT " + Contract.PACKAGE_SUPERTEST_STID_COLUMN + " FROM " + Contract.PACKAGE_SUPERTEST_TABLE
-                    + " WHERE " + Contract.PACKAGE_SUPERTEST_PID_COLUMN + "=? )",new String[]{id+""});
-            while (innerCursor.moveToNext()){
-                int tid = innerCursor.getInt(innerCursor.getColumnIndex(Contract.SUPERTEST_ID_COLUMN));
-                String test_name = innerCursor.getString(innerCursor.getColumnIndex(Contract.SUPERTEST_NAME_COLUMN));
-                Supertest supertest = new Supertest(tid,test_name);
-                tests.add(supertest);
-            }
-            innerCursor.close();
-            Package packageObject = new Package(id,name,Double.parseDouble(priceString),tests);
-            packages.add(packageObject);
-        }
-        cursor.close();
-        mPackages = packages;
-    }
-
-
 }
