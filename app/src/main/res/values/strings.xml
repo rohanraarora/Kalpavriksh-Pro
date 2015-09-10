@@ -11,4 +11,6 @@
     <string name="tests">Tests</string>
     <string name="title_activity_detail_appointment">Appointment</string>
     <string name="title_activity_multi_selector_list">Lists</string>
+    <string name="title_activity_scanner">ScannerActivity</string>
+    <string name="title_activity_samples">Samples</string>
 </resources>

@@ -104,7 +104,33 @@ public class Utilities {
         String age = patientCursor.getString(patientCursor.getColumnIndex(Contract.PATIENT_AGE_COL));
         String gender = patientCursor.getString(patientCursor.getColumnIndex(Contract.PATIENT_GENDER_COL));
         Patient patient = new Patient(patient_id,name,address,phone,age,gender);
+        cursor.close();
         return new LabAppointment(appointment_id,patient,date,time,tests,isDone);
     }
+
+    public static Supertest getSupertest(Context context,int id){
+        OpenHelper openHelper = OpenHelper.getInstance(context);
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+
+        Cursor cursor = db.query(Contract.SUPERTEST_TABLE,null,Contract.SUPERTEST_ID_COLUMN + "=?",new String[]{id + ""},null,null,null);
+        cursor.moveToFirst();
+        String name = cursor.getString(cursor.getColumnIndex(Contract.SUPERTEST_NAME_COLUMN));
+        String priceString = cursor.getString(cursor.getColumnIndex(Contract.SUPERTEST_PRICE_COLUMN));
+        ArrayList<Test> tests = new ArrayList<>();
+        Cursor innerCursor = db.rawQuery("SELECT * FROM " + Contract.TEST_TABLE + " WHERE " + Contract.TEST_ID_COLUMN
+                + " IN ( SELECT " + Contract.SUPERTEST_TEST_TID_COLUMN + " FROM " + Contract.SUPERTEST_TEST_TABLE
+                + " WHERE " + Contract.SUPERTEST_TEST_STID_COLUMN + "=? )", new String[]{id + ""});
+        while (innerCursor.moveToNext()){
+            int tid = innerCursor.getInt(innerCursor.getColumnIndex(Contract.TEST_ID_COLUMN));
+            String test_name = innerCursor.getString(innerCursor.getColumnIndex(Contract.Test_Name_COLUMN));
+            Test test = new Test(tid,test_name);
+            tests.add(test);
+        }
+        innerCursor.close();
+        Supertest supertest = new Supertest(id,name,Double.parseDouble(priceString),tests);
+        cursor.close();
+        return supertest;
+    }
+
 
 }

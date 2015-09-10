@@ -37,6 +37,14 @@
             android:name=".MultiSelectorListActivity"
             android:label="@string/title_activity_multi_selector_list" >
         </activity>
+        <activity
+            android:name=".ScannerActivity"
+            android:label="@string/title_activity_scanner" >
+        </activity>
+        <activity
+            android:name=".SamplesActivity"
+            android:label="@string/title_activity_samples" >
+        </activity>
     </application>
 
 </manifest>
