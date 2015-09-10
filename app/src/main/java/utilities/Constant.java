@@ -22,4 +22,6 @@ public class Constant {
     public static final String SUPERTEST_ID_LIST_INTENT_KEY = "supertests_id";
     public static final String SUPERTEST_POSITIONS_LIST_INTENT_KEY = "supertest_positions";
     public static final int RESULT_CODE_SUCCESS = 1;
+    public static final String SUPERTEST_LIST_INTENT_KEY = "supertests";
+    public static final String BARCODE_ID = "barcode_id";
 }

@@ -3,10 +3,15 @@ package in.kvsc.kalpavrikshpro;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.squareup.okhttp.internal.Util;
 
 import org.w3c.dom.Text;
 
@@ -14,6 +19,7 @@ import java.util.ArrayList;
 
 import models.LabAppointment;
 import models.Patient;
+import models.Supertest;
 import utilities.Constant;
 import utilities.Utilities;
 
@@ -21,6 +27,10 @@ public class DetailAppointmentActivity extends AppCompatActivity {
 
     private LabAppointment mAppointment;
 
+    Button addEditButton;
+    LinearLayout testsLayout;
+    Button saveButton;
+    ArrayList<Supertest> mTests;
     ArrayList<Integer> mSelectedSupertestIds;
     ArrayList<Integer> mSelectedSsupertestPositions;
 
@@ -31,6 +41,10 @@ public class DetailAppointmentActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mSelectedSupertestIds = new ArrayList<>();
         mSelectedSsupertestPositions = new ArrayList<>();
+        mTests = new ArrayList<>();
+        addEditButton = (Button)this.findViewById(R.id.addEditTestButton);
+        testsLayout = (LinearLayout)this.findViewById(R.id.testsLinearLayout);
+        saveButton = (Button)this.findViewById(R.id.saveButton);
         Intent intent = getIntent();
         long appointment_id = intent.getLongExtra(Constant.APPOINTMENT_ID_INTENT_KEY,0l);
         mAppointment = Utilities.getAppointment(this,appointment_id);
@@ -64,7 +78,9 @@ public class DetailAppointmentActivity extends AppCompatActivity {
     }
 
     public void onSaveButtonClicked(View view){
-
+        Intent intent = new Intent(this,ScannerActivity.class);
+        intent.putExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY,mSelectedSupertestIds);
+        startActivity(intent);
     }
 
     public void onAddEditTestButtonClicked(View view){
@@ -106,6 +122,30 @@ public class DetailAppointmentActivity extends AppCompatActivity {
                 if(resultCode == Constant.RESULT_CODE_SUCCESS && data != null){
                     mSelectedSsupertestPositions = data.getIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY);
                     mSelectedSupertestIds = data.getIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY);
+                    testsLayout.removeAllViews();
+                    mTests.clear();
+                    if(mSelectedSupertestIds.size() > 0){
+                        addEditButton.setText("Edit Tests");
+                        testsLayout.setVisibility(View.VISIBLE);
+                        saveButton.setVisibility(View.VISIBLE);
+                        for(int id:mSelectedSupertestIds){
+                            Supertest supertest = Utilities.getSupertest(this,id);
+                            mTests.add(supertest);
+                            View testRowView;
+                            LayoutInflater inflater = (LayoutInflater)this.getSystemService(LAYOUT_INFLATER_SERVICE);
+                            testRowView = inflater.inflate(R.layout.row_layout,null);
+                            TextView nameTextView = (TextView)testRowView.findViewById(R.id.row_textView_name);
+                            TextView priceTextView = (TextView)testRowView.findViewById(R.id.row_textView_price);
+                            nameTextView.setText(supertest.getName());
+                            priceTextView.setText(supertest.getPrice() + "");
+                            testsLayout.addView(testRowView);
+                        }
+                    }
+                    else{
+                        addEditButton.setText("Add Tests");
+                        testsLayout.setVisibility(View.GONE);
+                        saveButton.setVisibility(View.GONE);
+                    }
                 }
         }
     }
