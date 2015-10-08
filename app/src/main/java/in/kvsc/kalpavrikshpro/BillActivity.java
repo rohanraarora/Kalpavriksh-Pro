@@ -4,17 +4,23 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,21 +39,55 @@ public class BillActivity extends AppCompatActivity {
     private Intent mIntent;
     private double totalCost = 0;
     private int isBillPaid = 1;
+    private int paidBy = 1;
+    EditText discountEditText;
+    TextView netAmountTextView;
+    Double netAmount;
+    View mainView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bill);
+        mainView = findViewById(R.id.billView);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        discountEditText = (EditText)findViewById(R.id.billDiscountEditText);
+        netAmountTextView = (TextView)findViewById(R.id.billNetAmountTextView);
         mIntent = getIntent();
+        final LinearLayout paymentOptions = (LinearLayout)findViewById(R.id.billPaymentOptionsLayout);
+        Spinner spinner = (Spinner)findViewById(R.id.billPaidBySpinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Cash","Card"});
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position){
+                    case 0:
+                        paidBy = 1;
+                        break;
+                    case 1:
+                        paidBy = 2;
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                paidBy = 1;
+            }
+        });
         CheckBox checkBox = (CheckBox)findViewById(R.id.checkBox);
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked)
+                if (isChecked) {
                     isBillPaid = 2;
-                else
+                    paymentOptions.setVisibility(View.VISIBLE);
+                }
+                else {
                     isBillPaid = 1;
+                    paymentOptions.setVisibility(View.GONE);
+                }
             }
         });
         try {
@@ -55,6 +95,34 @@ public class BillActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        netAmount = totalCost;
+        netAmountTextView.setText(netAmount + " /- Rs");
+        discountEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String discount = s.toString();
+                discount = discount.isEmpty() || discount.equals("") ? 0+"":discount;
+                Double discountValue = Double.parseDouble(discount);
+                if(discountValue>100.0){
+                    discountValue = 100.0;
+                }
+                else if(discountValue <0.0){
+                    discountValue = 0.0;
+                }
+                netAmount = totalCost - totalCost*(discountValue/100.0);
+                netAmountTextView.setText(netAmount + " /- Rs");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private void generateBill() throws JSONException {
@@ -68,7 +136,14 @@ public class BillActivity extends AppCompatActivity {
         TextView patientNameTextView = (TextView)findViewById(R.id.billNameTextView);
         patientNameTextView.setText(patient.getName());
         TextView genderAgeTextView = (TextView)findViewById(R.id.billGenAgeTextView);
-        String genderAge = patient.getGender() + " | " + patient.getAge();
+        String ageString;
+        if(patient.getAge() == null || patient.getAge().equals("null")){
+            ageString = "";
+        }
+        else {
+            ageString = " | " + patient.getAge();
+        }
+        String genderAge = patient.getGender() + ageString;
         genderAgeTextView.setText(genderAge);
         TextView phoneTextView = (TextView)findViewById(R.id.billPhoneTextView);
         phoneTextView.setText(patient.getPhone());
@@ -154,7 +229,7 @@ public class BillActivity extends AppCompatActivity {
         }
         bill.put("bill_total",totalCost);
         bill.put("supertest_packages", packagesJSON);
-        billTotalTextView.setText(totalCost + "");
+        billTotalTextView.setText(totalCost + " /- Rs");
 //
 //        JSONObject patient_details = new JSONObject();
 //        patient_details.put("first_name", patient.getName());
@@ -168,17 +243,20 @@ public class BillActivity extends AppCompatActivity {
     }
 
     public void uploadBill(View view){
-        EditText discountEditText = (EditText)findViewById(R.id.billDiscountEditText);
+
+        EditText amountPaidEditText = (EditText)findViewById(R.id.billAmountPaidEditText);
         Double discount = Double.parseDouble(discountEditText.getEditableText().toString());
         try {
             bill.put("bill_discount", discount + "");
             bill.put("bill_status", isBillPaid);
+            bill.put("paid_by",paidBy);
+            bill.put("amount_paid",amountPaidEditText.getEditableText().toString());
             JSONArray billsJSONArray = new JSONArray();
             billsJSONArray.put(bill);
             final Context context = this;
             final String billJSONArrayString = billsJSONArray.toString();
             final String token = GlobalState.getInstance().getToken();
-            AsyncTask<String,Void,Boolean> task = new AsyncTask<String, Void, Boolean>() {
+            AsyncTask<String,Void,String> task = new AsyncTask<String, Void, String>() {
                 ProgressDialog progressDialog;
                 @Override
                 protected void onPreExecute() {
@@ -186,21 +264,19 @@ public class BillActivity extends AppCompatActivity {
                 }
 
                 @Override
-                protected Boolean doInBackground(String... params) {
+                protected String doInBackground(String... params) {
                     try {
                         return Utilities.uploadBills(context,token,billJSONArrayString);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        return false;
+                        return e.getMessage();
                     }
                 }
 
                 @Override
-                protected void onPostExecute(Boolean aBoolean) {
+                protected void onPostExecute(String a) {
                     progressDialog.dismiss();
-                    if(aBoolean){
-                        Toast.makeText(context,"Success",Toast.LENGTH_LONG).show();
-                    }
+                    Snackbar.make(mainView,a,Snackbar.LENGTH_SHORT).show();
                 }
             };
             task.execute();
@@ -222,7 +298,7 @@ public class BillActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-        else if(id == R.id.home){
+        else if(id == android.R.id.home){
             this.finish();
         }
 

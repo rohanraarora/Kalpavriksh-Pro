@@ -117,13 +117,30 @@ public class VialsActivity extends AppCompatActivity {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
             sample_detail.put("date",dateFormat.format(date));
-            sample_detail.put("time",timeFormat.format(date));
-            sample_detail.put("plain_vial",plainVialEditText.getEditableText().toString());
-            sample_detail.put("edta_vial",edtaVialEditText.getEditableText().toString());
-            sample_detail.put("fluoride_vial",fluorideVialEditText.getEditableText().toString());
-            sample_detail.put("sodium_citrate_vial",sodCitVialEditText.getEditableText().toString());
-            sample_detail.put("heparin_vial",heparinVialEditText.getEditableText().toString());
-            sample_detail.put("container",containerEditText.getEditableText().toString());
+            sample_detail.put("time", timeFormat.format(date));
+            String plainVialValue = plainVialEditText.getEditableText().toString();
+            plainVialValue = plainVialValue.isEmpty() ? 0+"":plainVialValue;
+            sample_detail.put("plain_vial",plainVialValue);
+
+            String edtaVialValue = edtaVialEditText.getEditableText().toString();
+            edtaVialValue = edtaVialValue.isEmpty() ? 0+"":edtaVialValue;
+            sample_detail.put("edta_vial",edtaVialValue);
+
+            String fluorideVialValue = fluorideVialEditText.getEditableText().toString();
+            fluorideVialValue = fluorideVialValue.isEmpty() ? 0+"":fluorideVialValue;
+            sample_detail.put("fluoride_vial",fluorideVialValue);
+
+            String sodCitVialValue = sodCitVialEditText.getEditableText().toString();
+            sodCitVialValue = sodCitVialValue.isEmpty() ? 0+"":sodCitVialValue;
+            sample_detail.put("sodium_citrate_vial",sodCitVialValue);
+
+            String heparinVialValue = heparinVialEditText.getEditableText().toString();
+            heparinVialValue = heparinVialValue.isEmpty() ? 0+"":heparinVialValue;
+            sample_detail.put("heparin_vial",heparinVialValue);
+
+            String containerVialValue = containerEditText.getEditableText().toString();
+            containerVialValue = containerVialValue.isEmpty() ? 0+"":containerVialValue;
+            sample_detail.put("container",containerVialValue);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -151,7 +168,7 @@ public class VialsActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
-        else if(id == R.id.home){
+        else if(id == android.R.id.home){
             this.finish();
         }
 

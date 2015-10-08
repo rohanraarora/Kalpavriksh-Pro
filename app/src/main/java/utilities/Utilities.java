@@ -373,7 +373,7 @@ public class Utilities {
         }
     }
 
-    public static boolean uploadBills(Context context,String token,String billsJSONArrayString) throws Exception {
+    public static String uploadBills(Context context,String token,String billsJSONArrayString) throws Exception {
         OkHttpClient client = new OkHttpClient();//creating client
         RequestBody requestBody = new MultipartBuilder()//building body part using form-data method
                 .type(MultipartBuilder.FORM)
@@ -392,9 +392,9 @@ public class Utilities {
         Log.e("response",responseString);
         JSONObject responseJsonObject = new JSONObject(responseString);
         if(responseJsonObject.getInt("bills_received") != responseJsonObject.getInt("bills_created")){
-            return false;
+            return "Server Error";
         }
-        else return true;
+        else return "Bill uploaded Successfully";
 
 
     }

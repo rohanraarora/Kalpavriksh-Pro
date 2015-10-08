@@ -43,7 +43,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="10"
-                android:text="0"
                 android:id="@+id/plainVialEditText" />
 
 
@@ -68,7 +67,6 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:text="0"
                 android:ems="10"
                 android:id="@+id/edtaVialEditText" />
 
@@ -95,7 +93,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="10"
-                android:text="0"
                 android:id="@+id/fluorideVialEditText" />
 
 
@@ -121,7 +118,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="10"
-                android:text="0"
                 android:id="@+id/sodcitVialEditText" />
 
 
@@ -147,7 +143,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="10"
-                android:text="0"
                 android:id="@+id/heparinVialEditText" />
 
 
@@ -174,7 +169,6 @@
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="10"
-                android:text="0"
                 android:id="@+id/containerEditText" />
 
 

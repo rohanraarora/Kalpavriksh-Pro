@@ -145,8 +145,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Remarks:"
-                android:layout_weight="1" />
+                android:text="Remarks:" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -155,17 +154,33 @@
                 android:text="remarks"
                 android:id="@+id/remarks_textView"
                 android:layout_marginLeft="16dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:gravity="right" />
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Tests &amp; Packages"
-            android:layout_marginTop="16dp" />
+            android:layout_weight="1" />
 
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add"
+                android:id="@+id/addEditTestButton"
+                android:layout_gravity="center_horizontal"
+                android:onClick="onAddEditTestButtonClicked" />
+
+        </LinearLayout>
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -177,37 +192,14 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_marginRight="4dp"
-            android:layout_marginLeft="4dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
             android:id="@+id/testsLinearLayout">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Tests"
-                android:layout_marginTop="8dp" />
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:background="@android:color/darker_gray" />
-
         </LinearLayout>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add"
-            android:id="@+id/addEditTestButton"
-            android:layout_gravity="center_horizontal"
-            android:onClick="onAddEditTestButtonClicked" />
+
 
     </LinearLayout>
         </ScrollView>

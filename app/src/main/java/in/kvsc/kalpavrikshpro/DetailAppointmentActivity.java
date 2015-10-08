@@ -3,6 +3,7 @@ package in.kvsc.kalpavrikshpro;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,9 +13,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.ArrayList;
-import models.LabAppointment;
-import models.Patient;
-import models.Supertest;
+
+import models.*;
 import utilities.Constant;
 import utilities.Utilities;
 
@@ -25,9 +25,8 @@ public class DetailAppointmentActivity extends AppCompatActivity {
     Button addEditButton;
     LinearLayout testsLayout;
     Button saveButton;
-    ArrayList<Supertest> mTests;
+    ArrayList<LabItem> mLabItems;
     ArrayList<Integer> mSelectedSupertestIds;
-    ArrayList<Integer> mSelectedSsupertestPositions;
     ArrayList<Integer> mSelectedPackagesIds;
     Intent mIntent;
 
@@ -37,9 +36,8 @@ public class DetailAppointmentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail_appointment);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mSelectedSupertestIds = new ArrayList<>();
-        mSelectedSsupertestPositions = new ArrayList<>();
         mSelectedPackagesIds = new ArrayList<>();
-        mTests = new ArrayList<>();
+        mLabItems = new ArrayList<>();
         addEditButton = (Button)this.findViewById(R.id.addEditTestButton);
         testsLayout = (LinearLayout)this.findViewById(R.id.testsLinearLayout);
         saveButton = (Button)this.findViewById(R.id.saveButton);
@@ -63,12 +61,14 @@ public class DetailAppointmentActivity extends AppCompatActivity {
         addressTextView.setText(patient.getAddress());
         phoneTextView.setText(patient.getPhone());
         String genAgeString;
-        if(patient.getAge()!=null){
-            genAgeString = patient.getGender() + " | " + patient.getAge();
+        String ageString;
+        if(patient.getAge() == null || patient.getAge().equals("null")){
+            ageString = "";
         }
-        else{
-            genAgeString = patient.getGender();
+        else {
+            ageString = " | " + patient.getAge();
         }
+        genAgeString = patient.getGender() + ageString;
         genderAgeTextView.setText(genAgeString);
         dateTextView.setText(mAppointment.getDate());
         timeTextView.setText(mAppointment.getCollection_time());
@@ -84,15 +84,10 @@ public class DetailAppointmentActivity extends AppCompatActivity {
 
     public void onAddEditTestButtonClicked(View view){
         Intent intent = new Intent(this,MultiSelectorListActivity.class);
-        intent.putIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY,mSelectedSsupertestPositions);
+        intent.putExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY, mSelectedSupertestIds);
+        intent.putExtra(Constant.PACKAGE_ID_LIST_INTENT_KEY,mSelectedPackagesIds);
         startActivityForResult(intent, Constant.REQUEST_CODE_SUPERTESTS);
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_detail_appointment, menu);
-        return true;
     }
 
     @Override
@@ -119,17 +114,17 @@ public class DetailAppointmentActivity extends AppCompatActivity {
         switch (requestCode){
             case Constant.REQUEST_CODE_SUPERTESTS:
                 if(resultCode == Constant.RESULT_CODE_SUCCESS && data != null){
-                    mSelectedSsupertestPositions = data.getIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY);
                     mSelectedSupertestIds = data.getIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY);
+                    mSelectedPackagesIds = data.getIntegerArrayListExtra(Constant.PACKAGE_ID_LIST_INTENT_KEY);
                     testsLayout.removeAllViews();
-                    mTests.clear();
-                    if(mSelectedSupertestIds.size() > 0){
-                        addEditButton.setText("Edit Tests");
+                    mLabItems.clear();
+                    if(mSelectedSupertestIds.size() + mSelectedPackagesIds.size() > 0){
+                        addEditButton.setText("Edit");
                         testsLayout.setVisibility(View.VISIBLE);
                         saveButton.setVisibility(View.VISIBLE);
                         for(int id:mSelectedSupertestIds){
                             Supertest supertest = Utilities.getSupertest(this,id);
-                            mTests.add(supertest);
+                            mLabItems.add(supertest);
                             LayoutInflater inflater = (LayoutInflater)this.getSystemService(LAYOUT_INFLATER_SERVICE);
                             View testRowView = inflater.inflate(R.layout.test_packages_row,null);
                             ImageView iconView = (ImageView)testRowView.findViewById(R.id.iconImageView);
@@ -140,9 +135,22 @@ public class DetailAppointmentActivity extends AppCompatActivity {
                             priceTextView.setText(supertest.getPrice() + "");
                             testsLayout.addView(testRowView);
                         }
+                        for(int id:mSelectedPackagesIds){
+                            models.Package packageObject = Utilities.getPackage(this,id);
+                            mLabItems.add(packageObject);
+                            LayoutInflater inflater = (LayoutInflater)this.getSystemService(LAYOUT_INFLATER_SERVICE);
+                            View testRowView = inflater.inflate(R.layout.test_packages_row,null);
+                            ImageView iconView = (ImageView)testRowView.findViewById(R.id.iconImageView);
+                            TextView nameTextView = (TextView)testRowView.findViewById(R.id.testPackageNameTextView);
+                            TextView priceTextView = (TextView)testRowView.findViewById(R.id.testPackagePriceTextView);
+                            iconView.setImageResource(R.drawable.package_icon);
+                            nameTextView.setText(packageObject.getName());
+                            priceTextView.setText(packageObject.getPrice() + "");
+                            testsLayout.addView(testRowView);
+                        }
                     }
                     else{
-                        addEditButton.setText("Add Tests");
+                        addEditButton.setText("Add");
                         testsLayout.setVisibility(View.GONE);
                         saveButton.setVisibility(View.GONE);
                     }
