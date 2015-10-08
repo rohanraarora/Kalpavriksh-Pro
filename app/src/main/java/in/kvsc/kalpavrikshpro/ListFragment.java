@@ -1,23 +1,15 @@
 package in.kvsc.kalpavrikshpro;
 
-
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import java.util.ArrayList;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-
-import java.util.ArrayList;
-
 import models.*;
 import models.Package;
 import utilities.Constant;
-import utilities.Contract;
-import utilities.OpenHelper;
 import utilities.PackageListAdapter;
 import utilities.SupertestListAdapter;
 import utilities.Utilities;
@@ -27,9 +19,6 @@ import utilities.Utilities;
  * A simple {@link Fragment} subclass.
  */
 public class ListFragment extends android.support.v4.app.Fragment {
-
-    private ArrayList<Package> mPackages;
-    private ArrayList<Supertest> mSupertests;
 
 
     @Override
@@ -43,18 +32,18 @@ public class ListFragment extends android.support.v4.app.Fragment {
         ExpandableListView listView = (ExpandableListView)fragmentView.findViewById(R.id.expandableListView);
 
 
-        mPackages = new ArrayList<>();
-        mSupertests = new ArrayList<>();
+        ArrayList<Package> mPackages;
+        ArrayList<Supertest> mSupertests;
 
         if (mType != null) {
             if(mType.equals(Constant.PACKAGES)){
                 mPackages = Utilities.getPackages(getActivity());
-                PackageListAdapter adapter = new PackageListAdapter(getActivity(),mPackages);
+                PackageListAdapter adapter = new PackageListAdapter(getActivity(), mPackages);
                 listView.setAdapter(adapter);
             }
             else if (mType.equals(Constant.SUPERTESTS)){
                 mSupertests = Utilities.getSupertests(getActivity());
-                SupertestListAdapter adapter = new SupertestListAdapter(getActivity(),mSupertests);
+                SupertestListAdapter adapter = new SupertestListAdapter(getActivity(), mSupertests);
                 listView.setAdapter(adapter);
             }
         }

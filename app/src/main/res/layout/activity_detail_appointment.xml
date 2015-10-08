@@ -110,8 +110,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Date &amp; Time:"
+                    android:layout_weight="2" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="date"
-                    android:id="@+id/date_textView" />
+                    android:id="@+id/date_textView"
+                    android:layout_weight="1"
+                    android:layout_gravity="right"
+                    android:gravity="right" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -119,7 +129,10 @@
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="time"
                     android:id="@+id/time_textView"
-                    android:layout_marginLeft="16dp" />
+                    android:layout_marginLeft="16dp"
+                    android:layout_weight="1"
+                    android:layout_gravity="right"
+                    android:gravity="right" />
             </LinearLayout>
         </LinearLayout>
 
@@ -132,7 +145,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Remarks:" />
+                android:text="Remarks:"
+                android:layout_weight="1" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -140,7 +154,9 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="remarks"
                 android:id="@+id/remarks_textView"
-                android:layout_marginLeft="16dp" />
+                android:layout_marginLeft="16dp"
+                android:layout_weight="2"
+                android:gravity="right" />
         </LinearLayout>
 
         <TextView

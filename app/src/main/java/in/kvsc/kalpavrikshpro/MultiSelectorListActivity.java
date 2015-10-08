@@ -36,7 +36,6 @@ public class MultiSelectorListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_multi_selector_list);
         Intent intent = getIntent();
         thisActivity = this;
-
         mSelectedSupertestPositions = intent.getIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY);
         mSelectedSupertestIds = new ArrayList<>();
         mTests = Utilities.getSupertests(this);
@@ -44,6 +43,8 @@ public class MultiSelectorListActivity extends AppCompatActivity {
         mListView = (ListView)this.findViewById(R.id.multiselect_listView);
         mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+
             @Override
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
                 final int checkedCount = mListView.getCheckedItemCount();
@@ -58,13 +59,14 @@ public class MultiSelectorListActivity extends AppCompatActivity {
                     //set your gray color
                     getWindow().setStatusBarColor(Color.DKGRAY);
                 }
+
                 mode.getMenuInflater().inflate(R.menu.menu_multi_selector_list, menu);
                 return true;
             }
 
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                return false;
+                return true;
             }
 
             @Override
@@ -72,9 +74,23 @@ public class MultiSelectorListActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.action_done:
                         // Calls getSelectedIds method from ListViewAdapter Class
-
+                        mSelectedPositions = mAdapter.getSelectedPositions();
+                        mSelectedSupertestIds.clear();
+                        mSelectedSupertestPositions.clear();
+                        // Captures all selected ids with a loop
+                        for (int i =0;i<mSelectedPositions.size(); i ++) {
+                            if (mSelectedPositions.valueAt(i)) {
+                                int position = mSelectedPositions.keyAt(i);
+                                mSelectedSupertestPositions.add(position);
+                                mSelectedSupertestIds.add((int)mListView.getItemIdAtPosition(position));
+                            }
+                        }
+                        Intent resultIntent = new Intent();
+                        resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY, mSelectedSupertestIds);
+                        resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY, mSelectedSupertestPositions);
+                        thisActivity.setResult(Constant.RESULT_CODE_SUCCESS, resultIntent);
                         mode.finish();
-                        thisActivity.finish();
+
                         return true;
                     default:
                         return false;
@@ -87,20 +103,17 @@ public class MultiSelectorListActivity extends AppCompatActivity {
                     getWindow().setStatusBarColor(statusBarColor);
                 }
                 mSelectedPositions = mAdapter.getSelectedPositions();
-                mSelectedSupertestIds.clear();
-                mSelectedSupertestPositions.clear();
-                // Captures all selected ids with a loop
-                for (int i =0;i<mSelectedPositions.size(); i ++) {
-                    if (mSelectedPositions.valueAt(i)) {
-                        int position = mSelectedPositions.keyAt(i);
-                        mSelectedSupertestPositions.add(position);
-                        mSelectedSupertestIds.add((int)mListView.getItemIdAtPosition(position));
-                    }
+                if(mSelectedPositions.size() == 0){
+                    mSelectedSupertestIds.clear();
+                    mSelectedSupertestPositions.clear();
+                    Intent resultIntent = new Intent();
+                    resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY, mSelectedSupertestIds);
+                    resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY, mSelectedSupertestPositions);
+                    thisActivity.setResult(Constant.RESULT_CODE_SUCCESS, resultIntent);
                 }
-                Intent resultIntent = new Intent();
-                resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY, mSelectedSupertestIds);
-                resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY, mSelectedSupertestPositions);
-                thisActivity.setResult(Constant.RESULT_CODE_SUCCESS, resultIntent);
+                else
+                thisActivity.finish();
+
 
             }
         });

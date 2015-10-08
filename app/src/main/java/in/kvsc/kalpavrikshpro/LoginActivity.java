@@ -5,12 +5,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -23,11 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
-
-import models.LabAppointment;
-import models.Patient;
 import utilities.Constant;
-import utilities.OpenHelper;
 import utilities.Utilities;
 
 public class LoginActivity extends AppCompatActivity {
@@ -87,42 +81,6 @@ public class LoginActivity extends AppCompatActivity {
         private static final String SUCCESS = "success";
         ProgressDialog mProgressDialog;
 
-        private void getAppointments(Context context){
-            OkHttpClient client = new OkHttpClient();//creating client
-
-            Request request = new Request.Builder()//building request
-                    .url(Constant.APPOINTMENT_URL)
-                    .header("Authorization", GlobalState.getInstance().getToken())
-                    .build();
-            try {
-                Response response = client.newCall(request).execute();
-                String responseString = response.body().string();
-                response.body().close();
-                JSONArray appointments = new JSONArray(responseString);
-                Log.i("appointments",appointments.toString());
-                OpenHelper openHelper = OpenHelper.getInstance(context);
-                SQLiteDatabase db = openHelper.getWritableDatabase();
-                for(int i = 0;i<appointments.length();i++){
-                    JSONObject appointment = appointments.getJSONObject(i);
-                    int patient_id = appointment.getInt("patient_id");
-                    int appointment_id = appointment.getInt("lab_appointment_id");
-                    String name = appointment.getString("patient_name");
-                    String address = appointment.getString("address");
-                    String age = appointment.getString("age");
-                    String gender = appointment.getString("gender");
-                    String phone = appointment.getString("phone");
-                    Patient patient = new Patient(patient_id,name,address,phone,age,gender);
-                    String date = appointment.getString("date");
-                    String time = appointment.getString("collection_time");
-                    String tests = appointment.getString("test_list");
-                    LabAppointment labAppointment = new LabAppointment(appointment_id,patient,date,time,tests,false);
-                    openHelper.addLabAppointment(db,labAppointment);
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         @Override
         protected String doInBackground(String... strings) {
             String response;
@@ -133,7 +91,6 @@ public class LoginActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (jsonObject!= null) {
                 if(jsonObject.has("id")){
                     try {
                         long id = jsonObject.getLong("id");
@@ -154,7 +111,8 @@ public class LoginActivity extends AppCompatActivity {
                             editor.putInt(Constant.USER_GROUP_ID, Constant.SAMPLE_COLLECTOR_ID);
                             editor.apply();
                             GlobalState.getInstance().login(token);
-                            getAppointments(thisActivity);
+                            Utilities.updateAppointments(thisActivity, token);
+                            Utilities.updateRetailSource(thisActivity,token);
                             return SUCCESS;
                         }
                         else{
@@ -171,11 +129,11 @@ public class LoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-            }
+
             else{
                 return "Cannot login now. Please try after some time";
             }
-            return "Unexpected Error";
+            return "Server Error. Please try again later";
         }
 
         @Override

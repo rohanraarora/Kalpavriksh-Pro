@@ -4,9 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import java.util.ArrayList;
-
 import models.*;
 import models.Package;
 
@@ -75,72 +72,84 @@ public class OpenHelper extends SQLiteOpenHelper{
                 + Contract.LAB_APPOINTMENT_TESTS_COLUMN + " TEXT, "
                 + Contract.LAB_APPOINTMENT_ISDONE_COLUMN + " INTEGER)");
 
-        addDummyData(db);
+        db.execSQL("CREATE TABLE " + Contract.RETAIL_SOURCE_TABLE + " ("
+                + Contract.RETAIL_SOURCE_ID_COLUMN + " INTEGER PRIMARY KEY, "
+                + Contract.RETAIL_SOURCE_NAME + " TEXT, "
+                + Contract.RETAIL_SOURCE_ADDRESS + " TEXT)");
+
 
     }
 
-    private void addDummyData(SQLiteDatabase db) {
+//    private void addDummyData(SQLiteDatabase db) {
+//
+//
+//
+//        Test test1 = new Test(1,"Thyroxine \\r\\n(T4)");
+//        Test test2 = new Test(2,"Thyroid Stimulating Hormone\\r\\n(TSH)");
+//        Test test3 = new Test(3,"Triiodothyronine\\r\\n(T3)");
+//        Test test4 = new Test(4,"Dehydroepiandrosterone Sulfate\\r\\n(DHEA-S)");
+//        Test test5 = new Test(5,"Progesterone");
+//
+//
+//        addTest(db,test1);
+//        addTest(db,test2);
+//        addTest(db,test3);
+//        addTest(db,test4);
+//        addTest(db,test5);
+//
+//        ArrayList<Test> testList1 = new ArrayList<>();
+//        testList1.add(test1);
+//
+//        ArrayList<Test> testList2 = new ArrayList<>();
+//        testList2.add(test1);
+//        testList2.add(test2);
+//
+//        ArrayList<Test> testList3 = new ArrayList<>();
+//        testList3.add(test1);
+//        testList3.add(test2);
+//        testList3.add(test3);
+//
+//        Supertest supertest1 = new Supertest(358,"Thyroxine (T4)",160.0,testList1);
+//        Supertest supertest2 = new Supertest(359,"Thyroid Stimulating Hormone (TSH)",350.0,testList2);
+//        Supertest supertest3 = new Supertest(360,"Thyroid Function Test (TFT)",500.0,testList3);
+//
+//
+//        addSupertest(db,supertest1);
+//        addSupertest(db,supertest2);
+//        addSupertest(db,supertest3);
+//
+//
+//        ArrayList<Supertest> supertestArrayList1 = new ArrayList<>();
+//        supertestArrayList1.add(supertest1);
+//
+//        ArrayList<Supertest> supertestArrayList2 = new ArrayList<>();
+//        supertestArrayList2.add(supertest1);
+//        supertestArrayList2.add(supertest2);
+//
+//        ArrayList<Supertest> supertestArrayList3 = new ArrayList<>();
+//        supertestArrayList3.add(supertest1);
+//        supertestArrayList3.add(supertest2);
+//        supertestArrayList3.add(supertest3);
+//
+//        Package package1 = new Package(1,"Package 1",1999.0,supertestArrayList1);
+//        Package package2 = new Package(2,"Package 2",1699.0,supertestArrayList2);
+//        Package package3 = new Package(3,"Package 3",2499.0,supertestArrayList3);
+//
+//        addPackage(db,package1);
+//        addPackage(db,package2);
+//        addPackage(db,package3);
+//
+//        Patient patient = new Patient(1,"Sahib","Hostel","9909090900","21","M");
+//        LabAppointment appointment = new LabAppointment(1,patient,"Sep-6","4:00","TEST 1",false);
+//        addLabAppointment(db,appointment);
+//    }
 
-
-
-        Test test1 = new Test(1,"Thyroxine \\r\\n(T4)");
-        Test test2 = new Test(2,"Thyroid Stimulating Hormone\\r\\n(TSH)");
-        Test test3 = new Test(3,"Triiodothyronine\\r\\n(T3)");
-        Test test4 = new Test(4,"Dehydroepiandrosterone Sulfate\\r\\n(DHEA-S)");
-        Test test5 = new Test(5,"Progesterone");
-
-
-        addTest(db,test1);
-        addTest(db,test2);
-        addTest(db,test3);
-        addTest(db,test4);
-        addTest(db,test5);
-
-        ArrayList<Test> testList1 = new ArrayList<>();
-        testList1.add(test1);
-
-        ArrayList<Test> testList2 = new ArrayList<>();
-        testList2.add(test1);
-        testList2.add(test2);
-
-        ArrayList<Test> testList3 = new ArrayList<>();
-        testList3.add(test1);
-        testList3.add(test2);
-        testList3.add(test3);
-
-        Supertest supertest1 = new Supertest(358,"Thyroxine (T4)",160.0,testList1);
-        Supertest supertest2 = new Supertest(359,"Thyroid Stimulating Hormone (TSH)",350.0,testList2);
-        Supertest supertest3 = new Supertest(360,"Thyroid Function Test (TFT)",500.0,testList3);
-
-
-        addSupertest(db,supertest1);
-        addSupertest(db,supertest2);
-        addSupertest(db,supertest3);
-
-
-        ArrayList<Supertest> supertestArrayList1 = new ArrayList<>();
-        supertestArrayList1.add(supertest1);
-
-        ArrayList<Supertest> supertestArrayList2 = new ArrayList<>();
-        supertestArrayList2.add(supertest1);
-        supertestArrayList2.add(supertest2);
-
-        ArrayList<Supertest> supertestArrayList3 = new ArrayList<>();
-        supertestArrayList3.add(supertest1);
-        supertestArrayList3.add(supertest2);
-        supertestArrayList3.add(supertest3);
-
-        Package package1 = new Package(1,"Package 1",1999.0,supertestArrayList1);
-        Package package2 = new Package(2,"Package 2",1699.0,supertestArrayList2);
-        Package package3 = new Package(3,"Package 3",2499.0,supertestArrayList3);
-
-        addPackage(db,package1);
-        addPackage(db,package2);
-        addPackage(db,package3);
-
-        Patient patient = new Patient(1,"Sahib","Hostel","9909090900","21","M");
-        LabAppointment appointment = new LabAppointment(1,patient,"Sep-6","4:00","TEST 1",false);
-        addLabAppointment(db,appointment);
+    public void addRetailSource(SQLiteDatabase db, RetailSource retailSource){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Contract.RETAIL_SOURCE_ID_COLUMN,retailSource.getId());
+        contentValues.put(Contract.RETAIL_SOURCE_NAME,retailSource.getName());
+        contentValues.put(Contract.RETAIL_SOURCE_ADDRESS,retailSource.getAddress());
+        db.insert(Contract.RETAIL_SOURCE_TABLE,null,contentValues);
     }
 
     public long addTest(SQLiteDatabase db,Test test){
