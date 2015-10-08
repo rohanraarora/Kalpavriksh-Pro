@@ -42,8 +42,12 @@
             android:label="@string/title_activity_scanner" >
         </activity>
         <activity
-            android:name=".SamplesActivity"
-            android:label="@string/title_activity_samples" >
+            android:name=".VialsActivity"
+            android:label="@string/title_activity_vials" >
+        </activity>
+        <activity
+            android:name=".BillActivity"
+            android:label="@string/title_activity_bill" >
         </activity>
     </application>
 

@@ -2,6 +2,7 @@ package models;
 
 /**
  * Created by Rohan on 9/2/2015.
+ *
  */
 public class Patient {
     private int id;

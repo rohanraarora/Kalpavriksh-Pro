@@ -46,4 +46,9 @@ public class Contract {
     public static final String LAB_APPOINTMENT_ISDONE_COLUMN = "is_done";
     public static final String LAB_APPOINTMENT_TESTS_COLUMN = "appintment_tests";
 
+    public static final String RETAIL_SOURCE_TABLE = "retail_sources";
+    public static final String RETAIL_SOURCE_ID_COLUMN = "retail_source_id";
+    public static final String RETAIL_SOURCE_ADDRESS = "retail_source_address";
+    public static final String RETAIL_SOURCE_NAME = "retail_source_name";
+
 }

@@ -5,18 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
-
 import java.util.ArrayList;
-import java.util.List;
-
 import in.kvsc.kalpavrikshpro.R;
 import models.LabAppointment;
 import models.Patient;
 
 /**
  * Created by Rohan on 9/3/2015.
+ *
  */
 public class AppointmentListAdapter extends BaseAdapter{
 

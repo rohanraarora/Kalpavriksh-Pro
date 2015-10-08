@@ -8,15 +8,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.squareup.okhttp.internal.Util;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-
 import models.LabAppointment;
 import models.Patient;
 import models.Supertest;
@@ -33,6 +28,8 @@ public class DetailAppointmentActivity extends AppCompatActivity {
     ArrayList<Supertest> mTests;
     ArrayList<Integer> mSelectedSupertestIds;
     ArrayList<Integer> mSelectedSsupertestPositions;
+    ArrayList<Integer> mSelectedPackagesIds;
+    Intent mIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,12 +38,13 @@ public class DetailAppointmentActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mSelectedSupertestIds = new ArrayList<>();
         mSelectedSsupertestPositions = new ArrayList<>();
+        mSelectedPackagesIds = new ArrayList<>();
         mTests = new ArrayList<>();
         addEditButton = (Button)this.findViewById(R.id.addEditTestButton);
         testsLayout = (LinearLayout)this.findViewById(R.id.testsLinearLayout);
         saveButton = (Button)this.findViewById(R.id.saveButton);
-        Intent intent = getIntent();
-        long appointment_id = intent.getLongExtra(Constant.APPOINTMENT_ID_INTENT_KEY,0l);
+        mIntent = getIntent();
+        long appointment_id = mIntent.getLongExtra(Constant.APPOINTMENT_ID_INTENT_KEY,0l);
         mAppointment = Utilities.getAppointment(this,appointment_id);
         setData();
     }
@@ -78,9 +76,10 @@ public class DetailAppointmentActivity extends AppCompatActivity {
     }
 
     public void onSaveButtonClicked(View view){
-        Intent intent = new Intent(this,ScannerActivity.class);
-        intent.putExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY,mSelectedSupertestIds);
-        startActivity(intent);
+        mIntent.setClass(this, ScannerActivity.class);
+        mIntent.putExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY, mSelectedSupertestIds);
+        mIntent.putExtra(Constant.PACKAGE_ID_LIST_INTENT_KEY,mSelectedPackagesIds);
+        startActivity(mIntent);
     }
 
     public void onAddEditTestButtonClicked(View view){
@@ -131,11 +130,12 @@ public class DetailAppointmentActivity extends AppCompatActivity {
                         for(int id:mSelectedSupertestIds){
                             Supertest supertest = Utilities.getSupertest(this,id);
                             mTests.add(supertest);
-                            View testRowView;
                             LayoutInflater inflater = (LayoutInflater)this.getSystemService(LAYOUT_INFLATER_SERVICE);
-                            testRowView = inflater.inflate(R.layout.row_layout,null);
-                            TextView nameTextView = (TextView)testRowView.findViewById(R.id.row_textView_name);
-                            TextView priceTextView = (TextView)testRowView.findViewById(R.id.row_textView_price);
+                            View testRowView = inflater.inflate(R.layout.test_packages_row,null);
+                            ImageView iconView = (ImageView)testRowView.findViewById(R.id.iconImageView);
+                            TextView nameTextView = (TextView)testRowView.findViewById(R.id.testPackageNameTextView);
+                            TextView priceTextView = (TextView)testRowView.findViewById(R.id.testPackagePriceTextView);
+                            iconView.setImageResource(R.drawable.test);
                             nameTextView.setText(supertest.getName());
                             priceTextView.setText(supertest.getPrice() + "");
                             testsLayout.addView(testRowView);
