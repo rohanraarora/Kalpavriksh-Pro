@@ -1,7 +1,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="in.kvsc.kalpavrikshpro.BillActivity">
+    tools:context="in.kvsc.kalpavrikshpro.BillActivity"
+    android:id="@+id/billView">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -402,8 +403,32 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="0"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:id="@+id/billDiscountEditText"
+                android:gravity="right" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Net Amount" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="0/- Rs"
+                android:id="@+id/billNetAmountTextView"
                 android:gravity="right" />
 
 
@@ -416,6 +441,63 @@
             android:id="@+id/checkBox"
             android:layout_gravity="right" />
 
+        <LinearLayout
+            android:id="@+id/billPaymentOptionsLayout"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Amount Paid" />
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="0"
+                android:inputType="numberDecimal"
+                android:id="@+id/billAmountPaidEditText"
+                android:gravity="right" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Paid By" />
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:id="@+id/billPaidBySpinner"
+                android:gravity="right" />
+
+        </LinearLayout>
+
+        </LinearLayout>
+
+
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -423,6 +505,9 @@
             android:text="Upload Bill"/>
 
 
+
     </LinearLayout>
+
+
 
 </ScrollView>

@@ -6,9 +6,7 @@ import java.util.ArrayList;
  * Created by Rohan on 8/26/2015.
  *
  */
-public class Package {
-    private String name;
-    private int id;
+public class Package extends LabItem{
     private double price;
     private ArrayList<Supertest> supertests;
 
@@ -17,6 +15,7 @@ public class Package {
         this.name = name;
         this.price = price;
         this.supertests = supertests;
+        this.type = PACKAGE;
     }
 
     public String getName(){return name;}

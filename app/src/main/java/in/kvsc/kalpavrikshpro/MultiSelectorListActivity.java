@@ -1,65 +1,104 @@
 package in.kvsc.kalpavrikshpro;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
+
+import com.squareup.okhttp.internal.Util;
 
 import java.util.ArrayList;
 
-import models.Supertest;
+import models.*;
+import models.Package;
 import utilities.Constant;
 import utilities.MultiSelectTestListAdapter;
 import utilities.Utilities;
 
-public class MultiSelectorListActivity extends AppCompatActivity {
+public class MultiSelectorListActivity extends AppCompatActivity{
 
     ListView mListView;
-    SparseBooleanArray mSelectedPositions;
+    SparseBooleanArray mSelectedTestIds;//To store selected tests id - using sparse to save looping through the list
+    SparseBooleanArray mSelectedPackageIds;//To store packages id
     MultiSelectTestListAdapter mAdapter;
-    ArrayList<Supertest> mTests;
-    ArrayList<Integer> mSelectedSupertestPositions;
-    ArrayList<Integer> mSelectedSupertestIds;
+    ArrayList<LabItem> mLabItems;//List consisting of both packages and tests
+    ArrayList<Integer> mSelectedSupertestIds;//List of selected test ids to be passed in intent
+    ArrayList<Integer> mSelectedPackagesIds;//list of selected package ids to be passed in intent
     Activity thisActivity;
+    ActionMode actionMode;//action mode
     private int statusBarColor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_multi_selector_list);
-        Intent intent = getIntent();
         thisActivity = this;
-        mSelectedSupertestPositions = intent.getIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY);
-        mSelectedSupertestIds = new ArrayList<>();
-        mTests = Utilities.getSupertests(this);
-        mSelectedPositions = new SparseBooleanArray();
-        mListView = (ListView)this.findViewById(R.id.multiselect_listView);
-        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        mListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
 
+        //creating combined list of tests and packages
+        mLabItems = new ArrayList<>();
+        ArrayList<Supertest> supertests = Utilities.getSupertests(this);
+        ArrayList<models.Package> packages = Utilities.getPackages(this);
+        mLabItems.addAll(packages);
+        mLabItems.addAll(supertests);
+
+        //retrieving selected tests and packages ids if any from detailActivityIntent and adding them to sparse
+        Intent intent = getIntent();
+        mSelectedSupertestIds = intent.getIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY);
+        mSelectedPackagesIds = intent.getIntegerArrayListExtra(Constant.PACKAGE_ID_LIST_INTENT_KEY);
+        mSelectedTestIds = new SparseBooleanArray();
+        mSelectedPackageIds = new SparseBooleanArray();
+        for(int id:mSelectedPackagesIds){
+            mSelectedPackageIds.put(id,true);
+        }
+        for(int id:mSelectedSupertestIds){
+            mSelectedTestIds.put(id,true);
+        }
+        int totalSelected = mSelectedPackagesIds.size() + mSelectedSupertestIds.size();
+
+        //Search Implementation using text watcher
+        EditText searchEditText = (EditText)findViewById(R.id.searchEditText);
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
 
             @Override
-            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                final int checkedCount = mListView.getCheckedItemCount();
-                mode.setTitle(checkedCount + " Selected");
-                mAdapter.toggleSelection(position);
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mAdapter.filter(s.toString());
             }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        mListView = (ListView)this.findViewById(R.id.multiselect_listView);
+        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+
+        //ActionMode Callback
+        final ActionMode.Callback callback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     //hold current color of status bar
                     statusBarColor = getWindow().getStatusBarColor();
-                    //set your gray color
                     getWindow().setStatusBarColor(Color.DKGRAY);
                 }
-
                 mode.getMenuInflater().inflate(R.menu.menu_multi_selector_list, menu);
                 return true;
             }
@@ -73,23 +112,31 @@ public class MultiSelectorListActivity extends AppCompatActivity {
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_done:
-                        // Calls getSelectedIds method from ListViewAdapter Class
-                        mSelectedPositions = mAdapter.getSelectedPositions();
+                        //On pressing done action in actionMode
+
+                        //updating sparse and selected tests and packages list
+                        mSelectedTestIds = mAdapter.getSelectedTestsIds();
+                        mSelectedPackageIds = mAdapter.getSelectedPackageIds();
                         mSelectedSupertestIds.clear();
-                        mSelectedSupertestPositions.clear();
-                        // Captures all selected ids with a loop
-                        for (int i =0;i<mSelectedPositions.size(); i ++) {
-                            if (mSelectedPositions.valueAt(i)) {
-                                int position = mSelectedPositions.keyAt(i);
-                                mSelectedSupertestPositions.add(position);
-                                mSelectedSupertestIds.add((int)mListView.getItemIdAtPosition(position));
+                        mSelectedPackagesIds.clear();
+                        for (int i =0;i<mSelectedTestIds.size(); i ++) {
+                            if (mSelectedTestIds.valueAt(i)) {
+                                mSelectedSupertestIds.add(mSelectedTestIds.keyAt(i));
                             }
                         }
+                        for(int i = 0;i<mSelectedPackageIds.size();i++){
+                            if(mSelectedPackageIds.valueAt(i)){
+                                mSelectedPackagesIds.add(mSelectedPackageIds.keyAt(i));
+                            }
+                        }
+
+                        //sending result
                         Intent resultIntent = new Intent();
                         resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY, mSelectedSupertestIds);
-                        resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY, mSelectedSupertestPositions);
+                        resultIntent.putIntegerArrayListExtra(Constant.PACKAGE_ID_LIST_INTENT_KEY, mSelectedPackagesIds);
                         thisActivity.setResult(Constant.RESULT_CODE_SUCCESS, resultIntent);
                         mode.finish();
+                        actionMode = null;
 
                         return true;
                     default:
@@ -102,28 +149,50 @@ public class MultiSelectorListActivity extends AppCompatActivity {
                     //return to "old" color of status bar
                     getWindow().setStatusBarColor(statusBarColor);
                 }
-                mSelectedPositions = mAdapter.getSelectedPositions();
-                if(mSelectedPositions.size() == 0){
+
+                if(mAdapter.getSelectedCount() == 0){
                     mSelectedSupertestIds.clear();
-                    mSelectedSupertestPositions.clear();
+                    mSelectedPackagesIds.clear();
                     Intent resultIntent = new Intent();
                     resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY, mSelectedSupertestIds);
-                    resultIntent.putIntegerArrayListExtra(Constant.SUPERTEST_POSITIONS_LIST_INTENT_KEY, mSelectedSupertestPositions);
+                    resultIntent.putIntegerArrayListExtra(Constant.PACKAGE_ID_LIST_INTENT_KEY, mSelectedPackagesIds);
                     thisActivity.setResult(Constant.RESULT_CODE_SUCCESS, resultIntent);
                 }
                 else
-                thisActivity.finish();
+                    thisActivity.finish();
 
 
             }
-        });
-        mAdapter = new MultiSelectTestListAdapter(this,mTests,mSelectedPositions);
-        mListView.setAdapter(mAdapter);
-        for(int i = 0;i<mSelectedSupertestPositions.size();i++){
-            int position = mSelectedSupertestPositions.get(i);
-            mListView.setItemChecked(position,true);
-            mSelectedPositions.put(position,true);
+        };
+
+        //if containes previously selected items start action mode
+        if(totalSelected > 0){
+            if(actionMode == null){
+                actionMode = startActionMode(callback);
+                actionMode.setTitle(totalSelected + " Selected");
+            }
         }
 
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Start the action mode is not started
+                if(actionMode==null)
+                    actionMode = startActionMode(callback);
+                mAdapter.toggleSelection(position);
+                final int checkedCount = mAdapter.getSelectedCount();
+                actionMode.setTitle(checkedCount + " Selected");
+                if (checkedCount == 0){
+                    actionMode.finish();
+                    actionMode = null;
+                }
+            }
+        });
+
+        //setting adapter
+        mAdapter = new MultiSelectTestListAdapter(this,mLabItems,mSelectedTestIds,mSelectedPackageIds);
+        mListView.setAdapter(mAdapter);
     }
+
 }

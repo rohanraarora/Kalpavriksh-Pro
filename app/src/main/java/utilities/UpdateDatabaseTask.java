@@ -32,10 +32,11 @@ public class UpdateDatabaseTask extends AsyncTask<String, Void, Boolean> {
     }
     @Override
     protected Boolean doInBackground(String... params) {
-
         mToken = GlobalState.getInstance().getToken();
         try {
             Utilities.updateDataBase(mContext,mToken);
+            Utilities.updateAppointments(mContext, mToken);
+            Utilities.updateRetailSource(mContext,mToken);
         } catch (JSONException e) {
             e.printStackTrace();
         }

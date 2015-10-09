@@ -6,11 +6,11 @@ import java.util.ArrayList;
  * Created by Rohan on 8/26/2015.
  *
  */
-public class Supertest {
-    private String name;
-    private int id;
+public class Supertest extends LabItem{
+
     private double price;
     private ArrayList<Test> tests;
+
 
 
     public Supertest(int id,String name){
@@ -18,6 +18,7 @@ public class Supertest {
         this.name = name;
         this.price = 0;
         this.tests = null;
+        this.type = SUPERTEST;
     }
 
 
@@ -26,6 +27,7 @@ public class Supertest {
         this.name = name;
         this.price = price;
         this.tests = tests;
+        this.type = SUPERTEST;
     }
 
     public String getName(){return name;}

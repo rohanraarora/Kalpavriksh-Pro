@@ -112,7 +112,8 @@ public class LoginActivity extends AppCompatActivity {
                             editor.apply();
                             GlobalState.getInstance().login(token);
                             Utilities.updateAppointments(thisActivity, token);
-                            Utilities.updateRetailSource(thisActivity,token);
+                            Utilities.updateRetailSource(thisActivity, token);
+                            Utilities.updateDataBase(thisActivity,token);
                             return SUCCESS;
                         }
                         else{

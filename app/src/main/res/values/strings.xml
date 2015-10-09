@@ -13,4 +13,5 @@
     <string name="title_activity_samples">Samples</string>
     <string name="title_activity_vials">VialsActivity</string>
     <string name="title_activity_bill">BillActivity</string>
+    <string name="title_activity_scanner_fragment">Scan</string>
 </resources>
