@@ -1,6 +1,7 @@
 package in.kvsc.kalpavrikshpro;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
@@ -29,6 +30,7 @@ public class DetailAppointmentActivity extends AppCompatActivity {
     ArrayList<Integer> mSelectedSupertestIds;
     ArrayList<Integer> mSelectedPackagesIds;
     Intent mIntent;
+    Patient patient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,7 @@ public class DetailAppointmentActivity extends AppCompatActivity {
         TextView timeTextView = (TextView)this.findViewById(R.id.time_textView);
         TextView remarksTextView = (TextView)this.findViewById(R.id.remarks_textView);
 
-        Patient patient = mAppointment.getPatient();
+        patient = mAppointment.getPatient();
         nameTextView.setText(patient.getName());
         addressTextView.setText(patient.getAddress());
         phoneTextView.setText(patient.getPhone());
@@ -91,6 +93,13 @@ public class DetailAppointmentActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_detail_appointment, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -98,14 +107,37 @@ public class DetailAppointmentActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_call) {
+            Intent callIntent = new Intent(Intent.ACTION_DIAL);
+            callIntent.setData(Uri.parse("tel:" + patient.getPhone()));
+            startActivity(callIntent);
+        }
+        else if(id == R.id.action_navigate){
+            String[] address = patient.getAddress().split(" ");
+            String nav = "";
+            for(int i = 0;i<address.length;i++){
+                String s = address[i];
+                if(i != address.length - 1){
+                    s = s+"+";
+                }
+                nav = nav + s;
+            }
+            Uri geoLocation = Uri.parse("google.navigation:q=" + nav);
+            showMap(geoLocation);
         }
         else if(id == R.id.home){
             this.finish();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void showMap(Uri geoLocation) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
     }
 
     @Override

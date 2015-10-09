@@ -1,7 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="in.kvsc.kalpavrikshpro.ScannerActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    tools:context="in.kvsc.kalpavrikshpro.ScannerFragmentActivity">
+    <item android:id="@+id/action_edit" android:title="Enter Barcode"
+        android:icon="@drawable/ic_mode_edit_white_36dp"
+        android:orderInCategory="1" app:showAsAction="ifRoom" />
 </menu>

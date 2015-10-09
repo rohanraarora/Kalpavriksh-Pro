@@ -1,10 +1,13 @@
 package utilities;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import java.util.ArrayList;
 import in.kvsc.kalpavrikshpro.R;
@@ -40,14 +43,23 @@ public class AppointmentListAdapter extends BaseAdapter{
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, final ViewGroup parent) {
         View output = convertView;
         if(convertView == null){
             LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             output = inflater.inflate(R.layout.appointment_row,null);
         }
         LabAppointment labAppointment = getItem(position);
-        Patient patient = labAppointment.getPatient();
+        final Patient patient = labAppointment.getPatient();
+        ImageView callAction = (ImageView)output.findViewById(R.id.callActionImageView);
+        callAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                callIntent.setData(Uri.parse("tel:" + patient.getPhone()));
+                mContext.startActivity(callIntent);
+            }
+        });
         TextView nameTextView = (TextView)output.findViewById(R.id.patientName_textView);
         nameTextView.setText(patient.getName());
 

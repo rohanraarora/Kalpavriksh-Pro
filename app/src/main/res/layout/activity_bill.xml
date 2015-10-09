@@ -403,7 +403,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="0"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:id="@+id/billDiscountEditText"
                 android:gravity="right" />
 
@@ -466,7 +466,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="0"
-                android:inputType="number"
+                android:inputType="numberDecimal"
                 android:id="@+id/billAmountPaidEditText"
                 android:gravity="right" />
 

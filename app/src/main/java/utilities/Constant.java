@@ -22,11 +22,13 @@ public class Constant {
     public static final String BILLS_URL = "http://52.10.206.27:8080/mobile_app/submit_samples_and_bills/";
     public static final int REQUEST_CODE_SUPERTESTS = 100;
     public static final String SUPERTEST_ID_LIST_INTENT_KEY = "supertests_ids";
-    public static final String SUPERTEST_POSITIONS_LIST_INTENT_KEY = "supertest_positions";
     public static final int RESULT_CODE_SUCCESS = 1;
     public static final String BARCODE_ID = "barcode_id";
     public static final String SAMPLE_JSON_STRING = "sample_json_string";
     public static final String RETAIL_SOURCE_ID_INTENT_KEY = "retail_source_id";
     public static final String REFERRED_BY_INTENT_KEY = "reffered_by";
     public static final String PACKAGE_ID_LIST_INTENT_KEY = "package_ids";
+    public static final String SUCCESS_MESSAGE = "Bill uploaded Successfully";
+    public static final String UPDATE_APPOINTMENT_STATUS_URL = "http://52.10.206.27:8080/mobile_app/lab_appointment_status/";
+    public static final String UPDATE_APPOINTMENT_SUCCESS_MESSAGE = "successful!";
 }

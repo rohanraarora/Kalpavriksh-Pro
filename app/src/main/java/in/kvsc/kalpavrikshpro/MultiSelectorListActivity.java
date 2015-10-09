@@ -136,6 +136,7 @@ public class MultiSelectorListActivity extends AppCompatActivity{
                         resultIntent.putIntegerArrayListExtra(Constant.PACKAGE_ID_LIST_INTENT_KEY, mSelectedPackagesIds);
                         thisActivity.setResult(Constant.RESULT_CODE_SUCCESS, resultIntent);
                         mode.finish();
+                        actionMode = null;
 
                         return true;
                     default:
@@ -184,6 +185,7 @@ public class MultiSelectorListActivity extends AppCompatActivity{
                 actionMode.setTitle(checkedCount + " Selected");
                 if (checkedCount == 0){
                     actionMode.finish();
+                    actionMode = null;
                 }
             }
         });

@@ -35,6 +35,8 @@ public class UpdateDatabaseTask extends AsyncTask<String, Void, Boolean> {
         mToken = GlobalState.getInstance().getToken();
         try {
             Utilities.updateDataBase(mContext,mToken);
+            Utilities.updateAppointments(mContext, mToken);
+            Utilities.updateRetailSource(mContext,mToken);
         } catch (JSONException e) {
             e.printStackTrace();
         }

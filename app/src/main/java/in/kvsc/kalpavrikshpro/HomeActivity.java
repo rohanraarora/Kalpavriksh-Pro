@@ -7,6 +7,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +27,9 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         parentView = this.findViewById(R.id.home_screen);
         mContext = this;
         //View Pager
@@ -33,7 +37,6 @@ public class HomeActivity extends AppCompatActivity {
         if(mPager!=null) {
             setupViewPager();
         }
-
 
         //Tab Layout
         mTabLayout = (TabLayout)this.findViewById(R.id.tab_layout);

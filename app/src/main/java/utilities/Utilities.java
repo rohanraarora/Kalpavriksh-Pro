@@ -86,7 +86,7 @@ public class Utilities {
         OpenHelper openHelper = OpenHelper.getInstance(context);
         SQLiteDatabase db = openHelper.getReadableDatabase();
 
-        Cursor cursor = db.query(Contract.PACKAGE_TABLE,null,null,null,null,null,null);
+        Cursor cursor = db.query(Contract.PACKAGE_TABLE, null, null, null, null, null, null);
         while (cursor.moveToNext()){
             int id = cursor.getInt(cursor.getColumnIndex(Contract.PACKAGE_ID_COLUMN));
             String name = cursor.getString(cursor.getColumnIndex(Contract.PACKAGE_NAME_COLUMN));
@@ -132,7 +132,7 @@ public class Utilities {
 
     public static LabAppointment getAppointment(Context context,long id){
         SQLiteDatabase db = OpenHelper.getInstance(context).getWritableDatabase();
-        Cursor cursor = db.query(Contract.LAB_APPOINTMENT_TABLE,null,Contract.LAB_APPOINTMENT_ID_COLUMN + "=?",new String[]{id +""},null,null,null);
+        Cursor cursor = db.query(Contract.LAB_APPOINTMENT_TABLE, null, Contract.LAB_APPOINTMENT_ID_COLUMN + "=?", new String[]{id + ""}, null, null, null);
         cursor.moveToFirst();
         int appointment_id = cursor.getInt(cursor.getColumnIndex(Contract.LAB_APPOINTMENT_ID_COLUMN));
         int patient_id = cursor.getInt(cursor.getColumnIndex(Contract.LAB_APPOINTMENT_PATIENT_ID_COL));
@@ -195,6 +195,9 @@ public class Utilities {
             Log.i("appointments", appointments.toString());
             OpenHelper openHelper = OpenHelper.getInstance(context);
             SQLiteDatabase db = openHelper.getWritableDatabase();
+            if(appointments.length()>0){
+                db.delete(Contract.LAB_APPOINTMENT_TABLE,null,null);
+            }
             for(int i = 0;i<appointments.length();i++){
                 JSONObject appointment = appointments.getJSONObject(i);
                 int patient_id = appointment.getInt("patient_id");
@@ -394,9 +397,35 @@ public class Utilities {
         if(responseJsonObject.getInt("bills_received") != responseJsonObject.getInt("bills_created")){
             return "Server Error";
         }
-        else return "Bill uploaded Successfully";
+        else return Constant.SUCCESS_MESSAGE;
 
 
     }
 
+    public static boolean updateAppointmentStatus(Context context, String token, int appointmentId, int status) throws Exception {
+        OkHttpClient client = new OkHttpClient();//creating client
+        RequestBody requestBody = new MultipartBuilder()//building body part using form-data method
+                .type(MultipartBuilder.FORM)
+                .addFormDataPart("lab_appointment_id", appointmentId + "")
+                .addFormDataPart("update_status_to",status + "")
+                .build();
+
+        Request request = new Request.Builder()//building request
+                .url(Constant.UPDATE_APPOINTMENT_STATUS_URL)
+                .header("Authorization",token)
+                .post(requestBody)
+                .build();
+
+        Response response = client.newCall(request).execute();
+        String responseString = response.body().string();
+        response.body().close();
+        Log.e("response",responseString);
+        JSONObject responseJsonObject = new JSONObject(responseString);
+        if(responseJsonObject.getString("request_status").equals(Constant.UPDATE_APPOINTMENT_SUCCESS_MESSAGE)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }

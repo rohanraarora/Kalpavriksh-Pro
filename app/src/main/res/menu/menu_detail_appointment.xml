@@ -2,6 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="in.kvsc.kalpavrikshpro.DetailAppointmentActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_call" android:title="Call"
+        android:icon="@drawable/ic_call_white_36dp"
+        android:orderInCategory="1" app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_navigate" android:title="Navigate"
+        android:icon="@drawable/ic_navigation_white_36dp"
+        android:orderInCategory="2" app:showAsAction="ifRoom" />
 </menu>

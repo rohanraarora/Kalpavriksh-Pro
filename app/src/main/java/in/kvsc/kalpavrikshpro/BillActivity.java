@@ -22,8 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +42,7 @@ public class BillActivity extends AppCompatActivity {
     TextView netAmountTextView;
     Double netAmount;
     View mainView;
+    int appointmentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +55,7 @@ public class BillActivity extends AppCompatActivity {
         mIntent = getIntent();
         final LinearLayout paymentOptions = (LinearLayout)findViewById(R.id.billPaymentOptionsLayout);
         Spinner spinner = (Spinner)findViewById(R.id.billPaidBySpinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Cash","Card"});
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Cash","Card"});
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -131,6 +130,7 @@ public class BillActivity extends AppCompatActivity {
         bill.put("patient_type", "old");
 
         long appointment_id = mIntent.getLongExtra(Constant.APPOINTMENT_ID_INTENT_KEY, 0);
+        appointmentId = (int)appointment_id;
         LabAppointment appointment = Utilities.getAppointment(this, appointment_id);
         Patient patient = appointment.getPatient();
         TextView patientNameTextView = (TextView)findViewById(R.id.billNameTextView);
@@ -159,7 +159,9 @@ public class BillActivity extends AppCompatActivity {
 
         TextView retailSourceTextView = (TextView)findViewById(R.id.billRetailSourceTextView);
         int retailSourceId = mIntent.getIntExtra(Constant.RETAIL_SOURCE_ID_INTENT_KEY, 0);
-        bill.put("patient_source", retailSourceId);
+        if(retailSourceId != 0) {
+            bill.put("patient_source", retailSourceId);
+        }
         RetailSource retailSource = Utilities.getRetailSource(this, retailSourceId);
         retailSourceTextView.setText(retailSource.getName());
 
@@ -262,11 +264,18 @@ public class BillActivity extends AppCompatActivity {
                 protected void onPreExecute() {
                     progressDialog = ProgressDialog.show(context,null,"Uploading...");
                 }
-
                 @Override
                 protected String doInBackground(String... params) {
                     try {
-                        return Utilities.uploadBills(context,token,billJSONArrayString);
+                        String s = Utilities.uploadBills(context,token,billJSONArrayString);
+                        if(s.equals(Constant.SUCCESS_MESSAGE)){
+                            if(Utilities.updateAppointmentStatus(context,token,appointmentId,2)) {
+                                Utilities.updateAppointments(context, token);
+                            }
+                        }else {
+                            //TODO
+                        }
+                        return s;
                     } catch (Exception e) {
                         e.printStackTrace();
                         return e.getMessage();
@@ -277,6 +286,11 @@ public class BillActivity extends AppCompatActivity {
                 protected void onPostExecute(String a) {
                     progressDialog.dismiss();
                     Snackbar.make(mainView,a,Snackbar.LENGTH_SHORT).show();
+                    if(a.equals(Constant.SUCCESS_MESSAGE)){
+                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                    }
                 }
             };
             task.execute();
