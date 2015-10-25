@@ -31,4 +31,5 @@ public class Constant {
     public static final String SUCCESS_MESSAGE = "Bill uploaded Successfully";
     public static final String UPDATE_APPOINTMENT_STATUS_URL = "http://52.10.206.27:8080/mobile_app/lab_appointment_status/";
     public static final String UPDATE_APPOINTMENT_SUCCESS_MESSAGE = "successful!";
+    public static final String CAN_NOT_CONNECT_MESSAGE = "Can not connect to server. Please try again";
 }

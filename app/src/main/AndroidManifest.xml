@@ -45,11 +45,13 @@
         </activity>
         <activity
             android:name=".VialsActivity"
-            android:label="@string/title_activity_vials" >
+            android:label="@string/title_activity_vials"
+            android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <activity
             android:name=".BillActivity"
-            android:label="@string/title_activity_bill" >
+            android:label="@string/title_activity_bill"
+            android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
     </application>
 

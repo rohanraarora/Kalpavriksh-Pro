@@ -156,7 +156,7 @@ public class LoginActivity extends AppCompatActivity {
             mProgressDialog = ProgressDialog.show(LoginActivity.this, null, "Loading...");
         }
 
-        private String post(String url) throws IOException {
+        private String post(String url) {
             //Using OkHttp lib
             OkHttpClient client = new OkHttpClient();//creating client
             RequestBody requestBody = new MultipartBuilder()//building body part using form-data method

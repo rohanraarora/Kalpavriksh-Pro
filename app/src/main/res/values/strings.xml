@@ -1,17 +1,13 @@
 <resources>
     <string name="app_name">Kalpavriksh Pro</string>
-
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_home">Kalpavriksh</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="packages">Packages</string>
     <string name="tests">Tests</string>
     <string name="title_activity_detail_appointment">Appointment</string>
-    <string name="title_activity_multi_selector_list">Lists</string>
-    <string name="title_activity_scanner">ScannerActivity</string>
-    <string name="title_activity_samples">Samples</string>
-    <string name="title_activity_vials">VialsActivity</string>
-    <string name="title_activity_bill">BillActivity</string>
+    <string name="title_activity_multi_selector_list">Select</string>
+    <string name="title_activity_scanner">Scan</string>
+    <string name="title_activity_vials">Add Vials</string>
+    <string name="title_activity_bill">Bill</string>
     <string name="title_activity_scanner_fragment">Scan</string>
 </resources>

@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.zxing.Result;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -85,7 +86,12 @@ public class ScannerActivity extends AppCompatActivity {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog,int which) {
                             // Write your code here to execute after dialog
-                            handleResult(input.getEditableText().toString());
+                            String s = input.getEditableText().toString();
+                            if(s!= null && !s.trim().equals(""))
+                                handleResult(input.getEditableText().toString());
+                            else{
+                                Toast.makeText(getApplicationContext(),"Please enter the barcode",Toast.LENGTH_LONG).show();
+                            }
                         }
                     });
             // Setting Negative "NO" Button

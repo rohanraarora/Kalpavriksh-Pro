@@ -1,7 +1,9 @@
 package in.kvsc.kalpavrikshpro;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
@@ -36,13 +38,19 @@ public class BillActivity extends AppCompatActivity {
     private JSONObject bill;
     private Intent mIntent;
     private double totalCost = 0;
-    private int isBillPaid = 1;
+    private int isBillPaid = 2;
     private int paidBy = 1;
+    String billJSONArrayString;
     EditText discountEditText;
     TextView netAmountTextView;
-    Double netAmount;
+    TextView discountTextView;
+    int netAmount;
+    int discountAmount = 0;
     View mainView;
     int appointmentId;
+    int totalTests = 0;
+    int totalPackages = 0;
+    String[] dialogListTitles = {"No. of Tests","No. of Packages","Total Amount","Discount","Net Amount","Amount Paid"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +60,7 @@ public class BillActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         discountEditText = (EditText)findViewById(R.id.billDiscountEditText);
         netAmountTextView = (TextView)findViewById(R.id.billNetAmountTextView);
+        discountTextView = (TextView)findViewById(R.id.billDiscountAmountTextView);
         mIntent = getIntent();
         final LinearLayout paymentOptions = (LinearLayout)findViewById(R.id.billPaymentOptionsLayout);
         Spinner spinner = (Spinner)findViewById(R.id.billPaidBySpinner);
@@ -75,26 +84,26 @@ public class BillActivity extends AppCompatActivity {
                 paidBy = 1;
             }
         });
-        CheckBox checkBox = (CheckBox)findViewById(R.id.checkBox);
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    isBillPaid = 2;
-                    paymentOptions.setVisibility(View.VISIBLE);
-                }
-                else {
-                    isBillPaid = 1;
-                    paymentOptions.setVisibility(View.GONE);
-                }
-            }
-        });
+//        CheckBox checkBox = (CheckBox)findViewById(R.id.checkBox);
+//        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if (isChecked) {
+//                    isBillPaid = 2;
+//                    paymentOptions.setVisibility(View.VISIBLE);
+//                }
+//                else {
+//                    isBillPaid = 1;
+//                    paymentOptions.setVisibility(View.GONE);
+//                }
+//            }
+//        });
         try {
             generateBill();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        netAmount = totalCost;
+        netAmount = (int)totalCost;
         netAmountTextView.setText(netAmount + " /- Rs");
         discountEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -105,16 +114,28 @@ public class BillActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String discount = s.toString();
-                discount = discount.isEmpty() || discount.equals("") ? 0+"":discount;
-                Double discountValue = Double.parseDouble(discount);
-                if(discountValue>100.0){
-                    discountValue = 100.0;
+                if(discount!=null) {
+                    discount = discount.isEmpty() || discount.equals("") || discount.charAt(0) == '.' ? 0 + discount : discount;
+                    Double discountValue = 0.0;
+                    try {
+                        discountValue = Double.parseDouble(discount);
+                    } catch (NumberFormatException e) {
+                        discountValue = 0.0;
+                        discountEditText.setText("0.0");
+                    }
+                    if (discountValue > 100.0) {
+                        discountValue = 100.0;
+                        discountEditText.setText("100.0");
+                    } else if (discountValue < 0.0) {
+                        discountValue = 0.0;
+                        discountEditText.setText("0.0");
+                    }
+                    netAmount = (int) (totalCost - totalCost * (discountValue / 100.0));
+                    discountAmount = (int)totalCost - netAmount;
+                    netAmountTextView.setText(netAmount + " /- Rs");
+                    discountTextView.setText(discountAmount + " /- Rs");
                 }
-                else if(discountValue <0.0){
-                    discountValue = 0.0;
-                }
-                netAmount = totalCost - totalCost*(discountValue/100.0);
-                netAmountTextView.setText(netAmount + " /- Rs");
+
             }
 
             @Override
@@ -207,6 +228,7 @@ public class BillActivity extends AppCompatActivity {
             nameTextView.setText(supertest.getName());
             priceTextView.setText(supertest.getPrice() + "");
             layout.addView(testRowView);
+            totalTests++;
         }
         bill.put("supertests", supertestsJSON);
 
@@ -228,6 +250,7 @@ public class BillActivity extends AppCompatActivity {
             nameTextView.setText(packageObject.getName());
             priceTextView.setText(packageObject.getPrice() + "");
             layout.addView(testRowView);
+            totalPackages++;
         }
         bill.put("bill_total",totalCost);
         bill.put("supertest_packages", packagesJSON);
@@ -247,54 +270,88 @@ public class BillActivity extends AppCompatActivity {
     public void uploadBill(View view){
 
         EditText amountPaidEditText = (EditText)findViewById(R.id.billAmountPaidEditText);
-        Double discount = Double.parseDouble(discountEditText.getEditableText().toString());
+        Double discount = 0.0;
+        if(discountEditText.getEditableText().toString() != null && !discountEditText.getEditableText().toString().equals(""))
+         discount = Double.parseDouble(discountEditText.getEditableText().toString());
+        String amountPaid = amountPaidEditText.getEditableText().toString();
+        if(amountPaid == null || amountPaid.trim().equals("")){
+            amountPaid = "0.0";
+        }
         try {
             bill.put("bill_discount", discount + "");
             bill.put("bill_status", isBillPaid);
             bill.put("paid_by",paidBy);
-            bill.put("amount_paid",amountPaidEditText.getEditableText().toString());
+            bill.put("amount_paid",amountPaid);
             JSONArray billsJSONArray = new JSONArray();
             billsJSONArray.put(bill);
+            billJSONArrayString  = billsJSONArray.toString();
             final Context context = this;
-            final String billJSONArrayString = billsJSONArray.toString();
-            final String token = GlobalState.getInstance().getToken();
-            AsyncTask<String,Void,String> task = new AsyncTask<String, Void, String>() {
-                ProgressDialog progressDialog;
-                @Override
-                protected void onPreExecute() {
-                    progressDialog = ProgressDialog.show(context,null,"Uploading...");
-                }
-                @Override
-                protected String doInBackground(String... params) {
-                    try {
-                        String s = Utilities.uploadBills(context,token,billJSONArrayString);
-                        if(s.equals(Constant.SUCCESS_MESSAGE)){
-                            if(Utilities.updateAppointmentStatus(context,token,appointmentId,2)) {
-                                Utilities.updateAppointments(context, token);
-                            }
-                        }else {
-                            //TODO
-                        }
-                        return s;
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return e.getMessage();
-                    }
-                }
+            int discountAmount = (int)(discount*totalCost)/100;
+            String[] dialogValues = new String[]{totalTests+"",totalPackages+"",totalCost+"",discountAmount+"",(totalCost - discountAmount)+"",amountPaid+""};
+            LayoutInflater inflater = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
+            LinearLayout dialogLayout = new LinearLayout(this);
+            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+            for(int i = 0;i<6;i++){
+                LinearLayout row = (LinearLayout)inflater.inflate(R.layout.row_layout,null);
+                TextView title = (TextView)row.findViewById(R.id.row_textView_name);
+                TextView  value = (TextView)row.findViewById(R.id.row_textView_price);
+                title.setText(dialogListTitles[i]);
+                value.setText(dialogValues[i]);
+                dialogLayout.addView(row);
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Confirm")
+                    .setView(dialogLayout)
+                    .setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            final String token = GlobalState.getInstance().getToken();
+                            AsyncTask<String,Void,String> task = new AsyncTask<String, Void, String>() {
+                                ProgressDialog progressDialog;
+                                @Override
+                                protected void onPreExecute() {
+                                    progressDialog = ProgressDialog.show(context,null,"Uploading...");
+                                }
+                                @Override
+                                protected String doInBackground(String... params) {
+                                    try {
+                                        String s = Utilities.uploadBills(context,token,billJSONArrayString);
+                                        if(s.equals(Constant.SUCCESS_MESSAGE)){
+                                            if(Utilities.updateAppointmentStatus(context,token,appointmentId,2)) {
+                                                Utilities.updateAppointments(context, token);
+                                            }
+                                        }else {
+                                            //TODO
+                                        }
+                                        return s;
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                        return e.getMessage();
+                                    }
+                                }
 
-                @Override
-                protected void onPostExecute(String a) {
-                    progressDialog.dismiss();
-                    Snackbar.make(mainView,a,Snackbar.LENGTH_SHORT).show();
-                    if(a.equals(Constant.SUCCESS_MESSAGE)){
-                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                    }
-                }
-            };
-            task.execute();
-            Log.e("json",bill.toString());
+                                @Override
+                                protected void onPostExecute(String a) {
+                                    progressDialog.dismiss();
+                                    Snackbar.make(mainView,a,Snackbar.LENGTH_SHORT).show();
+                                    if(a.equals(Constant.SUCCESS_MESSAGE)){
+                                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(intent);
+                                    }
+                                }
+                            };
+                            task.execute();
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
+            Log.e("json", bill.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }

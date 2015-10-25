@@ -402,13 +402,45 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="0"
+                android:hint="0"
                 android:inputType="numberDecimal"
                 android:id="@+id/billDiscountEditText"
                 android:gravity="right" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="%" />
+
 
         </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Discount" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="0/- Rs"
+                android:id="@+id/billDiscountAmountTextView"
+                android:gravity="right" />
+
+
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -434,16 +466,9 @@
 
         </LinearLayout>
 
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Bill Paid"
-            android:id="@+id/checkBox"
-            android:layout_gravity="right" />
-
         <LinearLayout
             android:id="@+id/billPaymentOptionsLayout"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -465,7 +490,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="0"
+                android:hint="0"
                 android:inputType="numberDecimal"
                 android:id="@+id/billAmountPaidEditText"
                 android:gravity="right" />
