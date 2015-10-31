@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -27,10 +28,16 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
 import models.*;
 import models.Package;
 import utilities.Constant;
+import utilities.OpenHelper;
 import utilities.Utilities;
 
 public class BillActivity extends AppCompatActivity {
@@ -50,6 +57,7 @@ public class BillActivity extends AppCompatActivity {
     int appointmentId;
     int totalTests = 0;
     int totalPackages = 0;
+    LabAppointment mLabAppointment;
     String[] dialogListTitles = {"No. of Tests","No. of Packages","Total Amount","Discount","Net Amount","Amount Paid"};
 
     @Override
@@ -152,8 +160,8 @@ public class BillActivity extends AppCompatActivity {
 
         long appointment_id = mIntent.getLongExtra(Constant.APPOINTMENT_ID_INTENT_KEY, 0);
         appointmentId = (int)appointment_id;
-        LabAppointment appointment = Utilities.getAppointment(this, appointment_id);
-        Patient patient = appointment.getPatient();
+        mLabAppointment = Utilities.getAppointment(this, appointment_id);
+        Patient patient = mLabAppointment.getPatient();
         TextView patientNameTextView = (TextView)findViewById(R.id.billNameTextView);
         patientNameTextView.setText(patient.getName());
         TextView genderAgeTextView = (TextView)findViewById(R.id.billGenAgeTextView);
@@ -306,21 +314,23 @@ public class BillActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             final String token = GlobalState.getInstance().getToken();
-                            AsyncTask<String,Void,String> task = new AsyncTask<String, Void, String>() {
+                            AsyncTask<String, Void, String> task = new AsyncTask<String, Void, String>() {
                                 ProgressDialog progressDialog;
+
                                 @Override
                                 protected void onPreExecute() {
-                                    progressDialog = ProgressDialog.show(context,null,"Uploading...");
+                                    progressDialog = ProgressDialog.show(context, null, "Uploading...");
                                 }
+
                                 @Override
                                 protected String doInBackground(String... params) {
                                     try {
-                                        String s = Utilities.uploadBills(context,token,billJSONArrayString);
-                                        if(s.equals(Constant.SUCCESS_MESSAGE)){
-                                            if(Utilities.updateAppointmentStatus(context,token,appointmentId,2)) {
+                                        String s = Utilities.uploadBills(context, token, billJSONArrayString);
+                                        if (s.equals(Constant.SUCCESS_MESSAGE)) {
+                                            if (Utilities.updateAppointmentStatus(context, token, appointmentId, 2)) {
                                                 Utilities.updateAppointments(context, token);
                                             }
-                                        }else {
+                                        } else {
                                             //TODO
                                         }
                                         return s;
@@ -333,11 +343,21 @@ public class BillActivity extends AppCompatActivity {
                                 @Override
                                 protected void onPostExecute(String a) {
                                     progressDialog.dismiss();
-                                    Snackbar.make(mainView,a,Snackbar.LENGTH_SHORT).show();
-                                    if(a.equals(Constant.SUCCESS_MESSAGE)){
+                                    OpenHelper openHelper = OpenHelper.getInstance(context);
+                                    SQLiteDatabase db = openHelper.getWritableDatabase();
+                                    openHelper.updateLabAppointmentStatus(db, mLabAppointment.getId(), 1);
+                                    Snackbar.make(mainView, a, Snackbar.LENGTH_SHORT).show();
+                                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                    String date = format.format(new Date(System.currentTimeMillis()));
+                                    Bill saveBill = new Bill(bill.toString(), date, Bill.NOT_UPLOADED, mLabAppointment.getId());
+                                    if (a.equals(Constant.SUCCESS_MESSAGE)) {
+                                        saveBill.setStatus(Bill.UPLOADED);
                                         Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        openHelper.addBill(db, saveBill);
                                         startActivity(intent);
+                                    } else {
+                                        openHelper.addBill(db, saveBill);
                                     }
                                 }
                             };

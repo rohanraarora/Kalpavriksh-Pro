@@ -94,6 +94,8 @@ public class LoginActivity extends AppCompatActivity {
                 if(jsonObject.has("id")){
                     try {
                         long id = jsonObject.getLong("id");
+                        //TODO
+                        String name = jsonObject.getString("token");
                         String token = jsonObject.getString("token");
                         JSONArray groups = jsonObject.getJSONArray("groups");
                         boolean isSampleCollector = false;
@@ -106,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                         if(isSampleCollector){
                             SharedPreferences user_pref = getSharedPreferences(Constant.USER_SHARED_PREFS,MODE_PRIVATE);
                             SharedPreferences.Editor editor = user_pref.edit();
+                            editor.putString(Constant.USER_NAME,name);
                             editor.putLong(Constant.USER_ID, id);
                             editor.putString(Constant.USER_TOKEN, token);
                             editor.putInt(Constant.USER_GROUP_ID, Constant.SAMPLE_COLLECTOR_ID);

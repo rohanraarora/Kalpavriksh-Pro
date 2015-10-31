@@ -77,22 +77,28 @@ public class OpenHelper extends SQLiteOpenHelper{
                 + Contract.RETAIL_SOURCE_NAME + " TEXT, "
                 + Contract.RETAIL_SOURCE_ADDRESS + " TEXT)");
 
+        db.execSQL("CREATE TABLE " + Contract.BILL_TABLE + " ("
+                + Contract.BILL_ID + " INTEGER PRIMARY KEY, "
+                + Contract.BILL_DATE + " TEXT, "
+                + Contract.BILL_UPLOAD_STATUS + " INTEGER, "
+                + Contract.BILL_APPOINTMENT_ID + " INTEGER, "
+                + Contract.BILL_JSON_STRING + " TEXT)");
 
     }
 
 
     public void addRetailSource(SQLiteDatabase db, RetailSource retailSource){
         ContentValues contentValues = new ContentValues();
-        contentValues.put(Contract.RETAIL_SOURCE_ID_COLUMN,retailSource.getId());
-        contentValues.put(Contract.RETAIL_SOURCE_NAME,retailSource.getName());
-        contentValues.put(Contract.RETAIL_SOURCE_ADDRESS,retailSource.getAddress());
-        db.insert(Contract.RETAIL_SOURCE_TABLE,null,contentValues);
+        contentValues.put(Contract.RETAIL_SOURCE_ID_COLUMN, retailSource.getId());
+        contentValues.put(Contract.RETAIL_SOURCE_NAME, retailSource.getName());
+        contentValues.put(Contract.RETAIL_SOURCE_ADDRESS, retailSource.getAddress());
+        db.insert(Contract.RETAIL_SOURCE_TABLE, null, contentValues);
     }
 
     public long addTest(SQLiteDatabase db,Test test){
         ContentValues contentValues = new ContentValues();
         contentValues.put(Contract.TEST_ID_COLUMN,test.getId());
-        contentValues.put(Contract.Test_Name_COLUMN,test.getName());
+        contentValues.put(Contract.Test_Name_COLUMN, test.getName());
         return db.insert(Contract.TEST_TABLE,null,contentValues);
     }
 
@@ -151,6 +157,19 @@ public class OpenHelper extends SQLiteOpenHelper{
         db.insert(Contract.LAB_APPOINTMENT_TABLE,null,appointmentValues);
     }
 
+    public void addBill(SQLiteDatabase db,Bill bill){
+        ContentValues billValues = new ContentValues();
+        billValues.put(Contract.BILL_DATE,bill.getDate());
+        billValues.put(Contract.BILL_JSON_STRING,bill.getBill());
+        billValues.put(Contract.BILL_UPLOAD_STATUS,bill.getStatus());
+        billValues.put(Contract.BILL_APPOINTMENT_ID,bill.getAppointmentId());
+        db.insert(Contract.BILL_TABLE,null,billValues);
+    }
+
+    public void updateLabAppointmentStatus(SQLiteDatabase db,int labAppointmentId,int status){
+        String query = "UPDATE " + Contract.LAB_APPOINTMENT_TABLE + " SET " + Contract.LAB_APPOINTMENT_ISDONE_COLUMN + " = " + status + " WHERE " + Contract.LAB_APPOINTMENT_ID_COLUMN + " = " + labAppointmentId;
+        db.rawQuery(query,null);
+    }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

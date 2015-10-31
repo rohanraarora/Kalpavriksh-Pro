@@ -10,4 +10,7 @@
     <string name="title_activity_vials">Add Vials</string>
     <string name="title_activity_bill">Bill</string>
     <string name="title_activity_scanner_fragment">Scan</string>
+    <string name="title_activity_summary">Summary</string>
+
+    <string name="hello_world">Hello world!</string>
 </resources>

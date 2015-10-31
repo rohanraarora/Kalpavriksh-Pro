@@ -17,7 +17,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
 import models.*;
 import models.Package;
 import utilities.Contract;
@@ -82,6 +85,24 @@ public class Utilities {
         }
         cursor.close();
         return sources;
+    }
+
+    public static ArrayList<Bill> getTodayBills(Context context){
+        ArrayList<Bill> bills = new ArrayList<>();
+        OpenHelper openHelper = OpenHelper.getInstance(context);
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String date = format.format(new Date(System.currentTimeMillis()));
+
+        Cursor cursor = db.query(Contract.BILL_TABLE,null,Contract.BILL_DATE + " =?",new String[]{date},null,null,null);
+        while (cursor.moveToNext()){
+            String billString = cursor.getString(cursor.getColumnIndex(Contract.BILL_JSON_STRING));
+            int status = cursor.getInt(cursor.getColumnIndex(Contract.BILL_UPLOAD_STATUS));
+            int appintmentId = cursor.getInt(cursor.getColumnIndex(Contract.BILL_APPOINTMENT_ID));
+            Bill bill = new Bill(billString,date,status,appintmentId);
+            bills.add(bill);
+        }
+        return bills;
     }
     public static ArrayList<models.Package> getPackages(Context context) {
         ArrayList<Package> packages = new ArrayList<>();
