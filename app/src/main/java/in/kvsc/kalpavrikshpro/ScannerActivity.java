@@ -1,11 +1,15 @@
 package in.kvsc.kalpavrikshpro;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +32,8 @@ import utilities.Utilities;
 public class ScannerActivity extends AppCompatActivity {
 
     Intent mIntent;
+    private static final int MY_PERMISSIONS_REQUEST_CAMERA = 100;
+
     @Override
     public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -36,7 +42,37 @@ public class ScannerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mIntent = getIntent();
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CAMERA);
+        if (permissionCheck == PackageManager.PERMISSION_DENIED)
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    MY_PERMISSIONS_REQUEST_CAMERA);
+
     }
+
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_CAMERA: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
 
     public void handleResult(String barcodeString){
         mIntent.setClass(this,VialsActivity.class);
@@ -87,7 +123,7 @@ public class ScannerActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog,int which) {
                             // Write your code here to execute after dialog
                             String s = input.getEditableText().toString();
-                            if(s!= null && !s.trim().equals(""))
+                            if(!s.trim().equals(""))
                                 handleResult(input.getEditableText().toString());
                             else{
                                 Toast.makeText(getApplicationContext(),"Please enter the barcode",Toast.LENGTH_LONG).show();

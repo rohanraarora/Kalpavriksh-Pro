@@ -18,8 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,7 +29,6 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 import models.*;
@@ -45,7 +42,6 @@ public class BillActivity extends AppCompatActivity {
     private JSONObject bill;
     private Intent mIntent;
     private double totalCost = 0;
-    private int isBillPaid = 2;
     private int paidBy = 1;
     String billJSONArrayString;
     EditText discountEditText;
@@ -64,13 +60,62 @@ public class BillActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bill);
-        mainView = findViewById(R.id.billView);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mainView = findViewById(R.id.billView);
         discountEditText = (EditText)findViewById(R.id.billDiscountEditText);
         netAmountTextView = (TextView)findViewById(R.id.billNetAmountTextView);
         discountTextView = (TextView)findViewById(R.id.billDiscountAmountTextView);
+
         mIntent = getIntent();
-        final LinearLayout paymentOptions = (LinearLayout)findViewById(R.id.billPaymentOptionsLayout);
+
+        setSpinner();
+
+        try {
+            generateBill();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        discountEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String discount = s.toString();
+                discount = discount.isEmpty() || discount.equals("") || discount.charAt(0) == '.' ? 0 + discount : discount;
+                Double discountValue;
+                try {
+                    discountValue = Double.parseDouble(discount);
+                } catch (NumberFormatException e) {
+                    discountValue = 0.0;
+                    discountEditText.setText("0.0");
+                }
+                if (discountValue > 100.0) {
+                    discountValue = 100.0;
+                    discountEditText.setText("100.0");
+                } else if (discountValue < 0.0) {
+                    discountValue = 0.0;
+                    discountEditText.setText("0.0");
+                }
+                netAmount = (int) (totalCost - totalCost * (discountValue / 100.0));
+                discountAmount = (int)totalCost - netAmount;
+                netAmountTextView.setText(netAmount + " /- Rs");
+                discountTextView.setText(discountAmount + " /- Rs");
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+    private void setSpinner() {
         Spinner spinner = (Spinner)findViewById(R.id.billPaidBySpinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,new String[]{"Cash","Card"});
         spinner.setAdapter(adapter);
@@ -92,65 +137,6 @@ public class BillActivity extends AppCompatActivity {
                 paidBy = 1;
             }
         });
-//        CheckBox checkBox = (CheckBox)findViewById(R.id.checkBox);
-//        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                if (isChecked) {
-//                    isBillPaid = 2;
-//                    paymentOptions.setVisibility(View.VISIBLE);
-//                }
-//                else {
-//                    isBillPaid = 1;
-//                    paymentOptions.setVisibility(View.GONE);
-//                }
-//            }
-//        });
-        try {
-            generateBill();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        netAmount = (int)totalCost;
-        netAmountTextView.setText(netAmount + " /- Rs");
-        discountEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String discount = s.toString();
-                if(discount!=null) {
-                    discount = discount.isEmpty() || discount.equals("") || discount.charAt(0) == '.' ? 0 + discount : discount;
-                    Double discountValue = 0.0;
-                    try {
-                        discountValue = Double.parseDouble(discount);
-                    } catch (NumberFormatException e) {
-                        discountValue = 0.0;
-                        discountEditText.setText("0.0");
-                    }
-                    if (discountValue > 100.0) {
-                        discountValue = 100.0;
-                        discountEditText.setText("100.0");
-                    } else if (discountValue < 0.0) {
-                        discountValue = 0.0;
-                        discountEditText.setText("0.0");
-                    }
-                    netAmount = (int) (totalCost - totalCost * (discountValue / 100.0));
-                    discountAmount = (int)totalCost - netAmount;
-                    netAmountTextView.setText(netAmount + " /- Rs");
-                    discountTextView.setText(discountAmount + " /- Rs");
-                }
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
     }
 
     private void generateBill() throws JSONException {
@@ -158,12 +144,14 @@ public class BillActivity extends AppCompatActivity {
         bill = new JSONObject();
         bill.put("patient_type", "old");
 
-        long appointment_id = mIntent.getLongExtra(Constant.APPOINTMENT_ID_INTENT_KEY, 0);
-        appointmentId = (int)appointment_id;
-        mLabAppointment = Utilities.getAppointment(this, appointment_id);
+        appointmentId = (int)mIntent.getLongExtra(Constant.APPOINTMENT_ID_INTENT_KEY, 0);
+        mLabAppointment = Utilities.getAppointment(this, appointmentId);
+
         Patient patient = mLabAppointment.getPatient();
+
         TextView patientNameTextView = (TextView)findViewById(R.id.billNameTextView);
         patientNameTextView.setText(patient.getName());
+
         TextView genderAgeTextView = (TextView)findViewById(R.id.billGenAgeTextView);
         String ageString;
         if(patient.getAge() == null || patient.getAge().equals("null")){
@@ -174,8 +162,10 @@ public class BillActivity extends AppCompatActivity {
         }
         String genderAge = patient.getGender() + ageString;
         genderAgeTextView.setText(genderAge);
+
         TextView phoneTextView = (TextView)findViewById(R.id.billPhoneTextView);
         phoneTextView.setText(patient.getPhone());
+
         TextView addressTextView = (TextView)findViewById(R.id.billAddressTextView);
         addressTextView.setText(patient.getAddress());
 
@@ -191,34 +181,46 @@ public class BillActivity extends AppCompatActivity {
         if(retailSourceId != 0) {
             bill.put("patient_source", retailSourceId);
         }
+
         RetailSource retailSource = Utilities.getRetailSource(this, retailSourceId);
         retailSourceTextView.setText(retailSource.getName());
 
         String sampleJsonString = mIntent.getStringExtra(Constant.SAMPLE_JSON_STRING);
         JSONObject sample = new JSONObject(sampleJsonString);
+
         TextView barcodeTextView = (TextView)findViewById(R.id.billBarcodeTextView);
         barcodeTextView.setText(sample.getString("sample_barcode"));
+
         TextView dateTimeTextView = (TextView)findViewById(R.id.billDateTimeTextView);
         String dateTime = sample.getString("date") + " " + sample.getString("time");
         dateTimeTextView.setText(dateTime);
+
         TextView plainVialTextView = (TextView)findViewById(R.id.billPlainVialTextView);
         plainVialTextView.setText(sample.getString("plain_vial"));
+
         TextView edtaVialTextView = (TextView)findViewById(R.id.billEdtaVialTextView);
         edtaVialTextView.setText(sample.getString("edta_vial"));
+
         TextView fluorideVialTextView = (TextView)findViewById(R.id.billFluorideVialTextView);
         fluorideVialTextView.setText(sample.getString("fluoride_vial"));
+
         TextView sodCitTextView = (TextView)findViewById(R.id.billSodCitVialTextView);
         sodCitTextView.setText(sample.getString("sodium_citrate_vial"));
+
         TextView heparinTextView = (TextView)findViewById(R.id.billHeparinVialsTextView);
         heparinTextView.setText(sample.getString("heparin_vial"));
+
         TextView containerTextView = (TextView)findViewById(R.id.billContainersTextView);
         containerTextView.setText(sample.getString("container"));
+
         bill.put("sample", sample);
 
         TextView billTotalTextView = (TextView)findViewById(R.id.billTotalTextView);
         JSONArray supertestsJSON = new JSONArray();
         JSONArray packagesJSON = new JSONArray();
-        ArrayList<Integer> supertestIds = mIntent.getIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY);
+
+        ArrayList<Integer> supertestIds;
+        supertestIds = mIntent.getIntegerArrayListExtra(Constant.SUPERTEST_ID_LIST_INTENT_KEY);
         for(int id:supertestIds){
             Supertest supertest = Utilities.getSupertest(this,id);
             JSONObject supertestJsonObject = new JSONObject();
@@ -240,6 +242,7 @@ public class BillActivity extends AppCompatActivity {
         }
         bill.put("supertests", supertestsJSON);
 
+
         ArrayList<Integer> packageIds = mIntent.getIntegerArrayListExtra(Constant.PACKAGE_ID_LIST_INTENT_KEY);
         for(int id:packageIds){
             Package packageObject = Utilities.getPackage(this,id);
@@ -260,18 +263,12 @@ public class BillActivity extends AppCompatActivity {
             layout.addView(testRowView);
             totalPackages++;
         }
+
         bill.put("bill_total",totalCost);
         bill.put("supertest_packages", packagesJSON);
         billTotalTextView.setText(totalCost + " /- Rs");
-//
-//        JSONObject patient_details = new JSONObject();
-//        patient_details.put("first_name", patient.getName());
-//        patient_details.put("last_name", patient.getName());
-//        patient_details.put("age", patient.getAge());
-//        patient_details.put("gender", patient.getGender());
-//        patient_details.put("address", patient.getAddress());
-//        patient_details.put("mobile_no", patient.getPhone());
-//        bill.put("patient_details",patient_details);
+        netAmount = (int)totalCost;
+        netAmountTextView.setText(netAmount + " /- Rs");
 
     }
 
@@ -279,14 +276,16 @@ public class BillActivity extends AppCompatActivity {
 
         EditText amountPaidEditText = (EditText)findViewById(R.id.billAmountPaidEditText);
         Double discount = 0.0;
-        if(discountEditText.getEditableText().toString() != null && !discountEditText.getEditableText().toString().equals(""))
+        if(!discountEditText.getEditableText().toString().equals(""))
          discount = Double.parseDouble(discountEditText.getEditableText().toString());
         String amountPaid = amountPaidEditText.getEditableText().toString();
-        if(amountPaid == null || amountPaid.trim().equals("")){
+        if(amountPaid.trim().equals("")){
             amountPaid = "0.0";
         }
         try {
+
             bill.put("bill_discount", discount + "");
+            int isBillPaid = 2;
             bill.put("bill_status", isBillPaid);
             bill.put("paid_by",paidBy);
             bill.put("amount_paid",amountPaid);
@@ -330,8 +329,6 @@ public class BillActivity extends AppCompatActivity {
                                             if (Utilities.updateAppointmentStatus(context, token, appointmentId, 2)) {
                                                 Utilities.updateAppointments(context, token);
                                             }
-                                        } else {
-                                            //TODO
                                         }
                                         return s;
                                     } catch (Exception e) {
@@ -343,21 +340,30 @@ public class BillActivity extends AppCompatActivity {
                                 @Override
                                 protected void onPostExecute(String a) {
                                     progressDialog.dismiss();
-                                    OpenHelper openHelper = OpenHelper.getInstance(context);
-                                    SQLiteDatabase db = openHelper.getWritableDatabase();
-                                    openHelper.updateLabAppointmentStatus(db, mLabAppointment.getId(), 1);
-                                    Snackbar.make(mainView, a, Snackbar.LENGTH_SHORT).show();
+                                    final OpenHelper openHelper = OpenHelper.getInstance(context);
+                                    final SQLiteDatabase db = openHelper.getWritableDatabase();
                                     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                                     String date = format.format(new Date(System.currentTimeMillis()));
-                                    Bill saveBill = new Bill(bill.toString(), date, Bill.NOT_UPLOADED, mLabAppointment.getId());
+                                    final Bill saveBill = new Bill(0,bill.toString(), date, Bill.NOT_UPLOADED, mLabAppointment.getId());
                                     if (a.equals(Constant.SUCCESS_MESSAGE)) {
                                         saveBill.setStatus(Bill.UPLOADED);
+                                        openHelper.updateLabAppointmentStatus(db, mLabAppointment.getId(), 1);
                                         Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                         openHelper.addBill(db, saveBill);
                                         startActivity(intent);
                                     } else {
-                                        openHelper.addBill(db, saveBill);
+                                        Snackbar.make(mainView, "Unable to upload bill. Save bill offline?", Snackbar.LENGTH_LONG).setAction("Save", new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                openHelper.addBill(db, saveBill);
+                                                openHelper.updateLabAppointmentStatus(db, mLabAppointment.getId(), 1);
+                                                Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                startActivity(intent);
+                                            }
+                                        }).show();
+
                                     }
                                 }
                             };

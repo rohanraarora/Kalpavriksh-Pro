@@ -20,7 +20,6 @@ import com.squareup.okhttp.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.IOException;
 import utilities.Constant;
 import utilities.Utilities;
 
@@ -91,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-                if(jsonObject.has("id")){
+            if(jsonObject.has("id")){
                     try {
                         long id = jsonObject.getLong("id");
                         //TODO
@@ -156,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            mProgressDialog = ProgressDialog.show(LoginActivity.this, null, "Loading...");
+            mProgressDialog = ProgressDialog.show(LoginActivity.this, null, "Signing in...");
         }
 
         private String post(String url) {

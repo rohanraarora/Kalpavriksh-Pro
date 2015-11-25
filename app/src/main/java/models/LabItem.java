@@ -2,6 +2,7 @@ package models;
 
 /**
  * Created by Rohan on 10/8/2015.
+ *
  */
 public class LabItem {
 

@@ -8,15 +8,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.util.ArrayList;
-
 import in.kvsc.kalpavrikshpro.R;
 import models.*;
 import models.Package;
 
 /**
  * Created by Rohan on 9/7/2015.
+ *
  */
 public class MultiSelectTestListAdapter extends BaseAdapter {
 

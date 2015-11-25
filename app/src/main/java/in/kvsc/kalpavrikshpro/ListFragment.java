@@ -2,7 +2,6 @@ package in.kvsc.kalpavrikshpro;
 
 import java.util.ArrayList;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.text.Editable;
@@ -10,7 +9,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import models.*;

@@ -1,26 +1,19 @@
 package in.kvsc.kalpavrikshpro;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-
 import models.Bill;
 import utilities.Constant;
 import utilities.OpenHelper;
@@ -34,6 +27,8 @@ public class SummaryActivity extends AppCompatActivity {
     ArrayList<Bill> bills;
     TextView totalBillsTextView;
     TextView billsUploadedTextView;
+    Button uploadButton;
+    Context mContext;
 
 
     @Override
@@ -44,10 +39,13 @@ public class SummaryActivity extends AppCompatActivity {
         name = user_pref.getString(Constant.USER_NAME, "");
         totalBillsTextView = (TextView)findViewById(R.id.totalBillsTextView);
         billsUploadedTextView = (TextView)findViewById(R.id.billsUploadedTextView);
+        uploadButton = (Button)this.findViewById(R.id.uploadButton);
+        mContext = this;
         refresh();
     }
 
     public void refresh(){
+        uploadedBills = 0;
         bills = Utilities.getTodayBills(this);
         totalBills = bills.size();
         for(Bill bill:bills){
@@ -55,6 +53,7 @@ public class SummaryActivity extends AppCompatActivity {
                 uploadedBills++;
             }
         }
+        uploadButton.setEnabled(totalBills != uploadedBills);
         totalBillsTextView.setText(totalBills + "");
         billsUploadedTextView.setText(uploadedBills + "");
     }
@@ -66,7 +65,13 @@ public class SummaryActivity extends AppCompatActivity {
 
             @Override
             protected void onPreExecute() {
-                progressDialog = ProgressDialog.show(getApplicationContext(), null, "Uploading...");
+                progressDialog = ProgressDialog.show(mContext, null, "Uploading...");
+                if(!Utilities.isConnectionAvailable(mContext)){
+                    Toast.makeText(mContext,"No Internet Connection",Toast.LENGTH_LONG).show();
+                    cancel(true);
+                    progressDialog.dismiss();
+                }
+
             }
 
             @Override
@@ -79,11 +84,13 @@ public class SummaryActivity extends AppCompatActivity {
                             jsonArray.put(billJson);
                             String s = Utilities.uploadBills(getApplicationContext(), token, jsonArray.toString());
                             if (s.equals(Constant.SUCCESS_MESSAGE)) {
-
+                                bill.setStatus(Bill.UPLOADED);
+                                OpenHelper openHelper = OpenHelper.getInstance(mContext);
+                                SQLiteDatabase db = openHelper.getWritableDatabase();
+                                openHelper.updateBillStatus(db, bill.getId(), Bill.UPLOADED);
                                 if (Utilities.updateAppointmentStatus(getApplicationContext(), token, bill.getAppointmentId(), 2)) {
+                                    Utilities.updateAppointments(getApplicationContext(),token);
                                 }
-                            } else {
-                                //TODO
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -104,27 +111,4 @@ public class SummaryActivity extends AppCompatActivity {
         task.execute();
     }
 
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_summary, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }

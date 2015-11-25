@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import java.util.ArrayList;
 import models.LabAppointment;
 import utilities.AppointmentListAdapter;

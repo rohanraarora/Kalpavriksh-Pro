@@ -94,12 +94,13 @@ public class Utilities {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String date = format.format(new Date(System.currentTimeMillis()));
 
-        Cursor cursor = db.query(Contract.BILL_TABLE,null,Contract.BILL_DATE + " =?",new String[]{date},null,null,null);
+        Cursor cursor = db.query(Contract.BILL_TABLE, null, null, null, null, null, null);
         while (cursor.moveToNext()){
+            int bill_id = cursor.getInt(cursor.getColumnIndex(Contract.BILL_ID));
             String billString = cursor.getString(cursor.getColumnIndex(Contract.BILL_JSON_STRING));
             int status = cursor.getInt(cursor.getColumnIndex(Contract.BILL_UPLOAD_STATUS));
             int appintmentId = cursor.getInt(cursor.getColumnIndex(Contract.BILL_APPOINTMENT_ID));
-            Bill bill = new Bill(billString,date,status,appintmentId);
+            Bill bill = new Bill(bill_id,billString,date,status,appintmentId);
             bills.add(bill);
         }
         return bills;
@@ -248,7 +249,7 @@ public class Utilities {
     public static void updateRetailSource(Context context,String token) throws JSONException {
         OpenHelper openHelper = OpenHelper.getInstance(context);
         SQLiteDatabase db = openHelper.getWritableDatabase();
-        String response = post(Constant.RETAIL_SOURCE_URL,token,context);
+        String response = post(Constant.RETAIL_SOURCE_URL, token, context);
         if(response!=null){
             JSONArray sources = new JSONArray(response);
             if(sources.length() > 0){
@@ -371,7 +372,9 @@ public class Utilities {
             String gender = patientCursor.getString(patientCursor.getColumnIndex(Contract.PATIENT_GENDER_COL));
             Patient patient = new Patient(patient_id,name,address,phone,age,gender);
             LabAppointment labAppointment = new LabAppointment(appointment_id,patient,date,time,tests,isDone);
-            appointments.add(labAppointment);
+            if (!labAppointment.isDone()){
+                appointments.add(labAppointment);
+            }
             patientCursor.close();
         }
         cursor.close();
@@ -401,6 +404,7 @@ public class Utilities {
 
     public static String uploadBills(Context context,String token,String billsJSONArrayString) throws Exception {
         OkHttpClient client = new OkHttpClient();//creating client
+        Log.e("bill",billsJSONArrayString);
         RequestBody requestBody = new MultipartBuilder()//building body part using form-data method
                 .type(MultipartBuilder.FORM)
                 .addFormDataPart("bills", billsJSONArrayString)
@@ -420,13 +424,15 @@ public class Utilities {
         if(responseJsonObject.getInt("bills_received") != responseJsonObject.getInt("bills_created")){
             return "Server Error";
         }
-        else return Constant.SUCCESS_MESSAGE;
-
+        else {
+            return Constant.SUCCESS_MESSAGE;
+        }
 
     }
 
     public static boolean updateAppointmentStatus(Context context, String token, int appointmentId, int status) throws Exception {
         OkHttpClient client = new OkHttpClient();//creating client
+
         RequestBody requestBody = new MultipartBuilder()//building body part using form-data method
                 .type(MultipartBuilder.FORM)
                 .addFormDataPart("lab_appointment_id", appointmentId + "")

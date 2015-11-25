@@ -2,6 +2,7 @@ package utilities;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import models.*;
@@ -150,7 +151,7 @@ public class OpenHelper extends SQLiteOpenHelper{
         appointmentValues.put(Contract.LAB_APPOINTMENT_DATE_COLUMN, labAppointment.getDate());
         appointmentValues.put(Contract.LAB_APPOINTMENT_EPOCH_COL,labAppointment.getTimeInEpoch());
         appointmentValues.put(Contract.LAB_APPOINTMENT_ID_COLUMN,labAppointment.getId());
-        appointmentValues.put(Contract.LAB_APPOINTMENT_ISDONE_COLUMN,0);//TODO
+        appointmentValues.put(Contract.LAB_APPOINTMENT_ISDONE_COLUMN,0);
         appointmentValues.put(Contract.LAB_APPOINTMENT_PATIENT_ID_COL,patient.getId());
         appointmentValues.put(Contract.LAB_APPOINTMENT_TIME_COLUMN,labAppointment.getCollection_time());
         appointmentValues.put(Contract.LAB_APPOINTMENT_TESTS_COLUMN,labAppointment.getTests());
@@ -168,8 +169,14 @@ public class OpenHelper extends SQLiteOpenHelper{
 
     public void updateLabAppointmentStatus(SQLiteDatabase db,int labAppointmentId,int status){
         String query = "UPDATE " + Contract.LAB_APPOINTMENT_TABLE + " SET " + Contract.LAB_APPOINTMENT_ISDONE_COLUMN + " = " + status + " WHERE " + Contract.LAB_APPOINTMENT_ID_COLUMN + " = " + labAppointmentId;
-        db.rawQuery(query,null);
+        db.execSQL(query);
     }
+
+    public void updateBillStatus(SQLiteDatabase db,int billId, int status){
+        String query = "UPDATE " + Contract.BILL_TABLE + " SET " + Contract.BILL_UPLOAD_STATUS + " = " + status + " WHERE " + Contract.BILL_ID + " = " + billId;
+        db.execSQL(query);
+    }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
