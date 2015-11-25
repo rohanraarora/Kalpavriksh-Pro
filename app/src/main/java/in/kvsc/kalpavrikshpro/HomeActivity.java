@@ -101,6 +101,11 @@ public class HomeActivity extends AppCompatActivity {
                 Snackbar.make(parentView, "Please connect to Internet", Snackbar.LENGTH_LONG).show();
             }
         }
+        else if(id == R.id.action_summary){
+            Intent intent = new Intent(this,SummaryActivity.class);
+            startActivity(intent);
+
+        }
 
 
         return super.onOptionsItemSelected(item);

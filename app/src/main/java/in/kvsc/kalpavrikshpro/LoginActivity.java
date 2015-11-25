@@ -20,7 +20,6 @@ import com.squareup.okhttp.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.IOException;
 import utilities.Constant;
 import utilities.Utilities;
 
@@ -91,9 +90,11 @@ public class LoginActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-                if(jsonObject.has("id")){
+            if(jsonObject.has("id")){
                     try {
                         long id = jsonObject.getLong("id");
+                        //TODO
+                        String name = jsonObject.getString("token");
                         String token = jsonObject.getString("token");
                         JSONArray groups = jsonObject.getJSONArray("groups");
                         boolean isSampleCollector = false;
@@ -106,6 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                         if(isSampleCollector){
                             SharedPreferences user_pref = getSharedPreferences(Constant.USER_SHARED_PREFS,MODE_PRIVATE);
                             SharedPreferences.Editor editor = user_pref.edit();
+                            editor.putString(Constant.USER_NAME,name);
                             editor.putLong(Constant.USER_ID, id);
                             editor.putString(Constant.USER_TOKEN, token);
                             editor.putInt(Constant.USER_GROUP_ID, Constant.SAMPLE_COLLECTOR_ID);
@@ -153,10 +155,10 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            mProgressDialog = ProgressDialog.show(LoginActivity.this, null, "Loading...");
+            mProgressDialog = ProgressDialog.show(LoginActivity.this, null, "Signing in...");
         }
 
-        private String post(String url) throws IOException {
+        private String post(String url) {
             //Using OkHttp lib
             OkHttpClient client = new OkHttpClient();//creating client
             RequestBody requestBody = new MultipartBuilder()//building body part using form-data method

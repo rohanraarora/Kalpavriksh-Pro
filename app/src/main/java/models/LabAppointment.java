@@ -45,10 +45,6 @@ public class LabAppointment {
         return isDone;
     }
 
-    public void done(){
-        isDone = true;
-    }
-
     public long getTimeInEpoch(){
         //TODO
         return 0l;

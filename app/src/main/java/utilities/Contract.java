@@ -51,4 +51,10 @@ public class Contract {
     public static final String RETAIL_SOURCE_ADDRESS = "retail_source_address";
     public static final String RETAIL_SOURCE_NAME = "retail_source_name";
 
+    public static final String BILL_TABLE = "bills";
+    public static final String BILL_ID = "bill_id";
+    public static final String BILL_DATE = "bill_date";
+    public static final String BILL_JSON_STRING = "bill_json";
+    public static final String BILL_UPLOAD_STATUS = "bill_status";
+    public static final String BILL_APPOINTMENT_ID = "bill_appointment_id";
 }

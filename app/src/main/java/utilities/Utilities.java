@@ -7,7 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -18,9 +17,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
 import models.*;
 import models.Package;
+import utilities.Contract;
+import utilities.OpenHelper;
+
 import static java.lang.Double.*;
 
 /**
@@ -80,6 +85,25 @@ public class Utilities {
         }
         cursor.close();
         return sources;
+    }
+
+    public static ArrayList<Bill> getTodayBills(Context context){
+        ArrayList<Bill> bills = new ArrayList<>();
+        OpenHelper openHelper = OpenHelper.getInstance(context);
+        SQLiteDatabase db = openHelper.getReadableDatabase();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String date = format.format(new Date(System.currentTimeMillis()));
+
+        Cursor cursor = db.query(Contract.BILL_TABLE, null, null, null, null, null, null);
+        while (cursor.moveToNext()){
+            int bill_id = cursor.getInt(cursor.getColumnIndex(Contract.BILL_ID));
+            String billString = cursor.getString(cursor.getColumnIndex(Contract.BILL_JSON_STRING));
+            int status = cursor.getInt(cursor.getColumnIndex(Contract.BILL_UPLOAD_STATUS));
+            int appintmentId = cursor.getInt(cursor.getColumnIndex(Contract.BILL_APPOINTMENT_ID));
+            Bill bill = new Bill(bill_id,billString,date,status,appintmentId);
+            bills.add(bill);
+        }
+        return bills;
     }
     public static ArrayList<models.Package> getPackages(Context context) {
         ArrayList<Package> packages = new ArrayList<>();
@@ -196,7 +220,7 @@ public class Utilities {
             OpenHelper openHelper = OpenHelper.getInstance(context);
             SQLiteDatabase db = openHelper.getWritableDatabase();
             if(appointments.length()>0){
-                db.delete(Contract.LAB_APPOINTMENT_TABLE,null,null);
+                db.execSQL("delete from "+ Contract.LAB_APPOINTMENT_TABLE);
             }
             for(int i = 0;i<appointments.length();i++){
                 JSONObject appointment = appointments.getJSONObject(i);
@@ -225,11 +249,11 @@ public class Utilities {
     public static void updateRetailSource(Context context,String token) throws JSONException {
         OpenHelper openHelper = OpenHelper.getInstance(context);
         SQLiteDatabase db = openHelper.getWritableDatabase();
-        String response = post(Constant.RETAIL_SOURCE_URL,token,context);
+        String response = post(Constant.RETAIL_SOURCE_URL, token, context);
         if(response!=null){
             JSONArray sources = new JSONArray(response);
             if(sources.length() > 0){
-                db.delete(Contract.RETAIL_SOURCE_TABLE,null,null);
+                db.execSQL("delete from "+ Contract.RETAIL_SOURCE_TABLE);
                 openHelper.addRetailSource(db,new RetailSource(0,"None",""));
                 for(int i = 0;i<sources.length();i++){
                     JSONObject source = sources.getJSONObject(i);
@@ -252,65 +276,65 @@ public class Utilities {
         JSONArray packageJSONArray;
         OpenHelper openHelper = OpenHelper.getInstance(context);
         SQLiteDatabase db = openHelper.getWritableDatabase();
-            testResponse = post(Constant.TEST_URL, token, context);
-            if (testResponse != null) {
-                testJSONArray = new JSONArray(testResponse);
-                if (testJSONArray.length() > 0) {
-                    db.delete(Contract.TEST_TABLE, null, null);
-                    for (int i = 0; i < testJSONArray.length(); i++) {
-                        JSONObject jsonObject = testJSONArray.getJSONObject(i);
+        testResponse = post(Constant.TEST_URL, token, context);
+        if (testResponse != null) {
+            testJSONArray = new JSONArray(testResponse);
+            if (testJSONArray.length() > 0) {
+                db.execSQL("delete from "+ Contract.TEST_TABLE);
+                for (int i = 0; i < testJSONArray.length(); i++) {
+                    JSONObject jsonObject = testJSONArray.getJSONObject(i);
+                    String name = jsonObject.getString("name");
+                    int id = jsonObject.getInt("id");
+                    Test test = new Test(id, name);
+                    openHelper.addTest(db, test);
+                }
+            }
+            supertestResponse = post(Constant.SUPERTEST_URL, token, context);
+            if (supertestResponse != null) {
+                supertestJSONArray = new JSONArray(supertestResponse);
+                if (supertestJSONArray.length() > 0) {
+                    db.execSQL("delete from "+ Contract.SUPERTEST_TABLE);
+                    for (int i = 0; i < supertestJSONArray.length(); i++) {
+                        JSONObject jsonObject = supertestJSONArray.getJSONObject(i);
                         String name = jsonObject.getString("name");
                         int id = jsonObject.getInt("id");
-                        Test test = new Test(id, name);
-                        openHelper.addTest(db, test);
+                        String price = jsonObject.getString("price");
+                        ArrayList<Test> tests = new ArrayList<>();
+                        JSONArray testsJSON = jsonObject.getJSONArray("tests");
+                        for (int j = 0; j < testsJSON.length(); j++) {
+                            JSONObject test = testsJSON.getJSONObject(j);
+                            String test_name = test.getString("name");
+                            int test_id = test.getInt("id");
+                            tests.add(new Test(test_id, test_name));
+                        }
+                        Supertest supertest = new Supertest(id, name, parseDouble(price), tests);
+                        openHelper.addSupertest(db, supertest);
                     }
                 }
-                supertestResponse = post(Constant.SUPERTEST_URL, token, context);
-                if (supertestResponse != null) {
-                    supertestJSONArray = new JSONArray(supertestResponse);
-                    if (supertestJSONArray.length() > 0) {
-                        db.delete(Contract.SUPERTEST_TEST_TABLE, null, null);
-                        for (int i = 0; i < supertestJSONArray.length(); i++) {
-                            JSONObject jsonObject = supertestJSONArray.getJSONObject(i);
+                packagesResponse = post(Constant.PACKAGE_URL, token, context);
+                if (packagesResponse != null) {
+                    packageJSONArray = new JSONArray(packagesResponse);
+                    if (packageJSONArray.length() > 0) {
+                        db.execSQL("delete from "+ Contract.PACKAGE_TABLE);
+                        for (int i = 0; i < packageJSONArray.length(); i++) {
+                            JSONObject jsonObject = packageJSONArray.getJSONObject(i);
                             String name = jsonObject.getString("name");
                             int id = jsonObject.getInt("id");
-                            String price = jsonObject.getString("price");
-                            ArrayList<Test> tests = new ArrayList<>();
-                            JSONArray testsJSON = jsonObject.getJSONArray("tests");
+                            Double price = jsonObject.getDouble("price");
+                            ArrayList<Supertest> tests = new ArrayList<>();
+                            JSONArray testsJSON = jsonObject.getJSONArray("supertests");
                             for (int j = 0; j < testsJSON.length(); j++) {
                                 JSONObject test = testsJSON.getJSONObject(j);
                                 String test_name = test.getString("name");
                                 int test_id = test.getInt("id");
-                                tests.add(new Test(test_id, test_name));
+                                tests.add(new Supertest(test_id, test_name));
                             }
-                            Supertest supertest = new Supertest(id, name, parseDouble(price), tests);
-                            openHelper.addSupertest(db, supertest);
-                        }
-                    }
-                    packagesResponse = post(Constant.PACKAGE_URL, token, context);
-                    if (packagesResponse != null) {
-                        packageJSONArray = new JSONArray(packagesResponse);
-                        if (packageJSONArray.length() > 0) {
-                            db.delete(Contract.PACKAGE_TABLE, null, null);
-                            for (int i = 0; i < packageJSONArray.length(); i++) {
-                                JSONObject jsonObject = packageJSONArray.getJSONObject(i);
-                                String name = jsonObject.getString("name");
-                                int id = jsonObject.getInt("id");
-                                Double price = jsonObject.getDouble("price");
-                                ArrayList<Supertest> tests = new ArrayList<>();
-                                JSONArray testsJSON = jsonObject.getJSONArray("supertests");
-                                for (int j = 0; j < testsJSON.length(); j++) {
-                                    JSONObject test = testsJSON.getJSONObject(j);
-                                    String test_name = test.getString("name");
-                                    int test_id = test.getInt("id");
-                                    tests.add(new Supertest(test_id, test_name));
-                                }
-                                openHelper.addPackage(db, new models.Package(id, name, price, tests));
-                            }
+                            openHelper.addPackage(db, new models.Package(id, name, price, tests));
                         }
                     }
                 }
             }
+        }
     }
 
     public static RetailSource getRetailSource(Context context,int id){
@@ -348,7 +372,9 @@ public class Utilities {
             String gender = patientCursor.getString(patientCursor.getColumnIndex(Contract.PATIENT_GENDER_COL));
             Patient patient = new Patient(patient_id,name,address,phone,age,gender);
             LabAppointment labAppointment = new LabAppointment(appointment_id,patient,date,time,tests,isDone);
-            appointments.add(labAppointment);
+            if (!labAppointment.isDone()){
+                appointments.add(labAppointment);
+            }
             patientCursor.close();
         }
         cursor.close();
@@ -378,6 +404,7 @@ public class Utilities {
 
     public static String uploadBills(Context context,String token,String billsJSONArrayString) throws Exception {
         OkHttpClient client = new OkHttpClient();//creating client
+        Log.e("bill",billsJSONArrayString);
         RequestBody requestBody = new MultipartBuilder()//building body part using form-data method
                 .type(MultipartBuilder.FORM)
                 .addFormDataPart("bills", billsJSONArrayString)
@@ -397,13 +424,15 @@ public class Utilities {
         if(responseJsonObject.getInt("bills_received") != responseJsonObject.getInt("bills_created")){
             return "Server Error";
         }
-        else return Constant.SUCCESS_MESSAGE;
-
+        else {
+            return Constant.SUCCESS_MESSAGE;
+        }
 
     }
 
     public static boolean updateAppointmentStatus(Context context, String token, int appointmentId, int status) throws Exception {
         OkHttpClient client = new OkHttpClient();//creating client
+
         RequestBody requestBody = new MultipartBuilder()//building body part using form-data method
                 .type(MultipartBuilder.FORM)
                 .addFormDataPart("lab_appointment_id", appointmentId + "")
@@ -427,5 +456,20 @@ public class Utilities {
         else{
             return false;
         }
+    }
+
+    public void deleteTests(Context context){
+        SQLiteDatabase db = OpenHelper.getInstance(context).getWritableDatabase();
+        db.execSQL("DELETE FROM " + Contract.TEST_TABLE);
+    }
+
+    public void deleteSuperTests(Context context){
+        SQLiteDatabase db = OpenHelper.getInstance(context).getWritableDatabase();
+        db.execSQL("DELETE FROM " + Contract.SUPERTEST_TABLE);
+    }
+
+    public void deletePackages(Context context){
+        SQLiteDatabase db = OpenHelper.getInstance(context).getWritableDatabase();
+        db.execSQL("DELETE FROM " + Contract.PACKAGE_TABLE);
     }
 }

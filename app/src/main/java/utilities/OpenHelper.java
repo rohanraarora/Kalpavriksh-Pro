@@ -2,6 +2,7 @@ package utilities;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import models.*;
@@ -32,7 +33,7 @@ public class OpenHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + Contract.PACKAGE_TABLE + " ("
-                + Contract.PACKAGE_ID_COLUMN + " INTEGER PRIMARY KEY, "
+                + Contract.PACKAGE_ID_COLUMN + " INTEGER, "
                 + Contract.PACKAGE_NAME_COLUMN + " TEXT, "
                 + Contract.PACKAGE_PRICE_COLUMN + " TEXT)");
 
@@ -42,7 +43,7 @@ public class OpenHelper extends SQLiteOpenHelper{
                 + Contract.PACKAGE_SUPERTEST_STID_COLUMN + " INTEGER)");
 
         db.execSQL("CREATE TABLE " + Contract.SUPERTEST_TABLE + " ("
-                + Contract.SUPERTEST_ID_COLUMN + " INTEGER PRIMARY KEY, "
+                + Contract.SUPERTEST_ID_COLUMN + " INTEGER, "
                 + Contract.SUPERTEST_NAME_COLUMN + " TEXT, "
                 + Contract.SUPERTEST_PRICE_COLUMN + " TEXT)");
 
@@ -52,11 +53,11 @@ public class OpenHelper extends SQLiteOpenHelper{
                 + Contract.SUPERTEST_TEST_TID_COLUMN + " INTEGER)");
 
         db.execSQL("CREATE TABLE " + Contract.TEST_TABLE + " ("
-                + Contract.TEST_ID_COLUMN + " INTEGER PRIMARY KEY, "
+                + Contract.TEST_ID_COLUMN + " INTEGER, "
                 + Contract.Test_Name_COLUMN + " TEXT)");
 
         db.execSQL("CREATE TABLE " + Contract.PATIENT_TABLE + " ("
-                + Contract.PATIENT_ID_COL + " INTEGERT PRIMARY KEY, "
+                + Contract.PATIENT_ID_COL + " INTEGERT, "
                 + Contract.PATIENT_NAME_COL + " TEXT, "
                 + Contract.PATIENT_ADDRESS_COL + " TEXT, "
                 + Contract.PATIENT_PHONE_COL + " TEXT, "
@@ -64,7 +65,7 @@ public class OpenHelper extends SQLiteOpenHelper{
                 + Contract.PATIENT_GENDER_COL + " TEXT)");
 
         db.execSQL("CREATE TABLE " + Contract.LAB_APPOINTMENT_TABLE + " ("
-                + Contract.LAB_APPOINTMENT_ID_COLUMN + " INTEGER PRIMARY KEY, "
+                + Contract.LAB_APPOINTMENT_ID_COLUMN + " INTEGER, "
                 + Contract.LAB_APPOINTMENT_PATIENT_ID_COL + " INTEGER, "
                 + Contract.LAB_APPOINTMENT_DATE_COLUMN + " TEXT, "
                 + Contract.LAB_APPOINTMENT_TIME_COLUMN + " TEXT, "
@@ -73,89 +74,32 @@ public class OpenHelper extends SQLiteOpenHelper{
                 + Contract.LAB_APPOINTMENT_ISDONE_COLUMN + " INTEGER)");
 
         db.execSQL("CREATE TABLE " + Contract.RETAIL_SOURCE_TABLE + " ("
-                + Contract.RETAIL_SOURCE_ID_COLUMN + " INTEGER PRIMARY KEY, "
+                + Contract.RETAIL_SOURCE_ID_COLUMN + " INTEGER, "
                 + Contract.RETAIL_SOURCE_NAME + " TEXT, "
                 + Contract.RETAIL_SOURCE_ADDRESS + " TEXT)");
 
+        db.execSQL("CREATE TABLE " + Contract.BILL_TABLE + " ("
+                + Contract.BILL_ID + " INTEGER PRIMARY KEY, "
+                + Contract.BILL_DATE + " TEXT, "
+                + Contract.BILL_UPLOAD_STATUS + " INTEGER, "
+                + Contract.BILL_APPOINTMENT_ID + " INTEGER, "
+                + Contract.BILL_JSON_STRING + " TEXT)");
 
     }
 
-//    private void addDummyData(SQLiteDatabase db) {
-//
-//
-//
-//        Test test1 = new Test(1,"Thyroxine \\r\\n(T4)");
-//        Test test2 = new Test(2,"Thyroid Stimulating Hormone\\r\\n(TSH)");
-//        Test test3 = new Test(3,"Triiodothyronine\\r\\n(T3)");
-//        Test test4 = new Test(4,"Dehydroepiandrosterone Sulfate\\r\\n(DHEA-S)");
-//        Test test5 = new Test(5,"Progesterone");
-//
-//
-//        addTest(db,test1);
-//        addTest(db,test2);
-//        addTest(db,test3);
-//        addTest(db,test4);
-//        addTest(db,test5);
-//
-//        ArrayList<Test> testList1 = new ArrayList<>();
-//        testList1.add(test1);
-//
-//        ArrayList<Test> testList2 = new ArrayList<>();
-//        testList2.add(test1);
-//        testList2.add(test2);
-//
-//        ArrayList<Test> testList3 = new ArrayList<>();
-//        testList3.add(test1);
-//        testList3.add(test2);
-//        testList3.add(test3);
-//
-//        Supertest supertest1 = new Supertest(358,"Thyroxine (T4)",160.0,testList1);
-//        Supertest supertest2 = new Supertest(359,"Thyroid Stimulating Hormone (TSH)",350.0,testList2);
-//        Supertest supertest3 = new Supertest(360,"Thyroid Function Test (TFT)",500.0,testList3);
-//
-//
-//        addSupertest(db,supertest1);
-//        addSupertest(db,supertest2);
-//        addSupertest(db,supertest3);
-//
-//
-//        ArrayList<Supertest> supertestArrayList1 = new ArrayList<>();
-//        supertestArrayList1.add(supertest1);
-//
-//        ArrayList<Supertest> supertestArrayList2 = new ArrayList<>();
-//        supertestArrayList2.add(supertest1);
-//        supertestArrayList2.add(supertest2);
-//
-//        ArrayList<Supertest> supertestArrayList3 = new ArrayList<>();
-//        supertestArrayList3.add(supertest1);
-//        supertestArrayList3.add(supertest2);
-//        supertestArrayList3.add(supertest3);
-//
-//        Package package1 = new Package(1,"Package 1",1999.0,supertestArrayList1);
-//        Package package2 = new Package(2,"Package 2",1699.0,supertestArrayList2);
-//        Package package3 = new Package(3,"Package 3",2499.0,supertestArrayList3);
-//
-//        addPackage(db,package1);
-//        addPackage(db,package2);
-//        addPackage(db,package3);
-//
-//        Patient patient = new Patient(1,"Sahib","Hostel","9909090900","21","M");
-//        LabAppointment appointment = new LabAppointment(1,patient,"Sep-6","4:00","TEST 1",false);
-//        addLabAppointment(db,appointment);
-//    }
 
     public void addRetailSource(SQLiteDatabase db, RetailSource retailSource){
         ContentValues contentValues = new ContentValues();
-        contentValues.put(Contract.RETAIL_SOURCE_ID_COLUMN,retailSource.getId());
-        contentValues.put(Contract.RETAIL_SOURCE_NAME,retailSource.getName());
-        contentValues.put(Contract.RETAIL_SOURCE_ADDRESS,retailSource.getAddress());
-        db.insert(Contract.RETAIL_SOURCE_TABLE,null,contentValues);
+        contentValues.put(Contract.RETAIL_SOURCE_ID_COLUMN, retailSource.getId());
+        contentValues.put(Contract.RETAIL_SOURCE_NAME, retailSource.getName());
+        contentValues.put(Contract.RETAIL_SOURCE_ADDRESS, retailSource.getAddress());
+        db.insert(Contract.RETAIL_SOURCE_TABLE, null, contentValues);
     }
 
     public long addTest(SQLiteDatabase db,Test test){
         ContentValues contentValues = new ContentValues();
         contentValues.put(Contract.TEST_ID_COLUMN,test.getId());
-        contentValues.put(Contract.Test_Name_COLUMN,test.getName());
+        contentValues.put(Contract.Test_Name_COLUMN, test.getName());
         return db.insert(Contract.TEST_TABLE,null,contentValues);
     }
 
@@ -207,11 +151,30 @@ public class OpenHelper extends SQLiteOpenHelper{
         appointmentValues.put(Contract.LAB_APPOINTMENT_DATE_COLUMN, labAppointment.getDate());
         appointmentValues.put(Contract.LAB_APPOINTMENT_EPOCH_COL,labAppointment.getTimeInEpoch());
         appointmentValues.put(Contract.LAB_APPOINTMENT_ID_COLUMN,labAppointment.getId());
-        appointmentValues.put(Contract.LAB_APPOINTMENT_ISDONE_COLUMN,0);//TODO
+        appointmentValues.put(Contract.LAB_APPOINTMENT_ISDONE_COLUMN,0);
         appointmentValues.put(Contract.LAB_APPOINTMENT_PATIENT_ID_COL,patient.getId());
         appointmentValues.put(Contract.LAB_APPOINTMENT_TIME_COLUMN,labAppointment.getCollection_time());
         appointmentValues.put(Contract.LAB_APPOINTMENT_TESTS_COLUMN,labAppointment.getTests());
         db.insert(Contract.LAB_APPOINTMENT_TABLE,null,appointmentValues);
+    }
+
+    public void addBill(SQLiteDatabase db,Bill bill){
+        ContentValues billValues = new ContentValues();
+        billValues.put(Contract.BILL_DATE,bill.getDate());
+        billValues.put(Contract.BILL_JSON_STRING,bill.getBill());
+        billValues.put(Contract.BILL_UPLOAD_STATUS,bill.getStatus());
+        billValues.put(Contract.BILL_APPOINTMENT_ID,bill.getAppointmentId());
+        db.insert(Contract.BILL_TABLE,null,billValues);
+    }
+
+    public void updateLabAppointmentStatus(SQLiteDatabase db,int labAppointmentId,int status){
+        String query = "UPDATE " + Contract.LAB_APPOINTMENT_TABLE + " SET " + Contract.LAB_APPOINTMENT_ISDONE_COLUMN + " = " + status + " WHERE " + Contract.LAB_APPOINTMENT_ID_COLUMN + " = " + labAppointmentId;
+        db.execSQL(query);
+    }
+
+    public void updateBillStatus(SQLiteDatabase db,int billId, int status){
+        String query = "UPDATE " + Contract.BILL_TABLE + " SET " + Contract.BILL_UPLOAD_STATUS + " = " + status + " WHERE " + Contract.BILL_ID + " = " + billId;
+        db.execSQL(query);
     }
 
 

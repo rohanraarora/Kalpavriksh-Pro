@@ -10,8 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import in.kvsc.kalpavrikshpro.R;
-import models.Supertest;
-import models.Test;
+import models.*;
 
 /**
  * Created by Rohan on 8/26/2015.
@@ -21,9 +20,11 @@ public class SupertestListAdapter extends BaseExpandableListAdapter {
 
     Context mContext;
     ArrayList<Supertest> mList;
+    ArrayList<Supertest> originalList;
     public SupertestListAdapter(Context context,ArrayList<Supertest> list){
         mContext = context;
         mList = list;
+        originalList = new ArrayList<>(list);
     }
     @Override
     public int getGroupCount() {
@@ -52,7 +53,7 @@ public class SupertestListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return getChild(groupPosition,childPosition).getId();
+        return getChild(groupPosition, childPosition).getId();
     }
 
     @Override
@@ -84,7 +85,7 @@ public class SupertestListAdapter extends BaseExpandableListAdapter {
             output = inflater.inflate(R.layout.expandedrow_layout,null);
         }
         TextView nameTextView = (TextView)output.findViewById(R.id.expandedrow_textView_name);
-        Test test = getChild(groupPosition,childPosition);
+        Test test = getChild(groupPosition, childPosition);
         nameTextView.setText((childPosition+1) + ".) " + test.getName());
 
         return output;
@@ -93,5 +94,22 @@ public class SupertestListAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return false;
+    }
+
+    public void filter(String s) {
+        s = s.toLowerCase();
+        mList.clear();
+        if (s.length() == 0) {
+            mList.addAll(originalList);
+        }
+        else
+        {
+            for (Supertest supertest : originalList) {
+                if (supertest.getName().toLowerCase().contains(s)) {
+                    mList.add(supertest);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 }

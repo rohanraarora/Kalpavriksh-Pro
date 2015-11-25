@@ -5,6 +5,12 @@
     <item android:id="@+id/action_logout" android:title="Log Out"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/action_update_database" android:title="Sync Data"
-        android:orderInCategory="99" app:showAsAction="never" />
+        android:orderInCategory="2" app:showAsAction="never" />
+    <item android:id="@+id/action_summary"
+        android:title="Summary"
+        android:icon="@drawable/ic_assignment_white_36dp"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="1"
+        ></item>
 
 </menu>

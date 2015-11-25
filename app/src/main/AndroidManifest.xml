@@ -40,16 +40,22 @@
         </activity>
         <activity
             android:name=".ScannerActivity"
-            android:theme="@style/HomeActivityTheme"
-            android:label="@string/title_activity_scanner" >
+            android:label="@string/title_activity_scanner"
+            android:theme="@style/HomeActivityTheme" >
         </activity>
         <activity
             android:name=".VialsActivity"
-            android:label="@string/title_activity_vials" >
+            android:label="@string/title_activity_vials"
+            android:windowSoftInputMode="stateHidden|adjustResize" >
         </activity>
         <activity
             android:name=".BillActivity"
-            android:label="@string/title_activity_bill" >
+            android:label="@string/title_activity_bill"
+            android:windowSoftInputMode="stateHidden|adjustResize" >
+        </activity>
+        <activity
+            android:name=".SummaryActivity"
+            android:label="@string/title_activity_summary" >
         </activity>
     </application>
 

@@ -1,7 +1,6 @@
 package in.kvsc.kalpavrikshpro;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -14,17 +13,11 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-
-import com.squareup.okhttp.internal.Util;
-
 import java.util.ArrayList;
-
 import models.*;
-import models.Package;
 import utilities.Constant;
 import utilities.MultiSelectTestListAdapter;
 import utilities.Utilities;
@@ -86,23 +79,20 @@ public class MultiSelectorListActivity extends AppCompatActivity{
 
             }
         });
-
         mListView = (ListView)this.findViewById(R.id.multiselect_listView);
-        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-
+        mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         //ActionMode Callback
         final ActionMode.Callback callback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                mode.getMenuInflater().inflate(R.menu.menu_multi_selector_list, menu);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     //hold current color of status bar
                     statusBarColor = getWindow().getStatusBarColor();
                     getWindow().setStatusBarColor(Color.DKGRAY);
                 }
-                mode.getMenuInflater().inflate(R.menu.menu_multi_selector_list, menu);
                 return true;
             }
-
             @Override
             public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
                 return true;
@@ -113,7 +103,6 @@ public class MultiSelectorListActivity extends AppCompatActivity{
                 switch (item.getItemId()) {
                     case R.id.action_done:
                         //On pressing done action in actionMode
-
                         //updating sparse and selected tests and packages list
                         mSelectedTestIds = mAdapter.getSelectedTestsIds();
                         mSelectedPackageIds = mAdapter.getSelectedPackageIds();
